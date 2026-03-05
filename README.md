@@ -39,7 +39,7 @@ Designed for use with [OctoPrint](https://octoprint.org/) — giving you a compa
 OctoMount is a **2-piece design** — Base and Cover — that replaces the Ender 3 Pro control box front panel:
 
 - **Base** — single printed part that serves as both the mounting bracket and the enclosure body. It bolts to the 4040 control-box beam using the existing two M5 diagonal screw holes, covers the stock front panel, and houses the RPi 4B, LM2596 buck converter, and full-size SD slot.
-- **Cover** — angled lid that snaps/screws onto the Base. The front face is cut at 45° to tilt the MPI4008 LCD toward the operator. Attaches with 4× M3 screws.
+- **Cover** — angled lid that screws onto the Base. The back wall is at the full 48 mm height limit; the front wall is as short as the flat RPi stack allows, maximising the LCD tilt toward the operator. Attaches with 4× M3 screws.
 
 ### Mounting Strategy
 
@@ -63,7 +63,7 @@ The Base plate bolts directly to the end face of the Ender 3 Pro 4040 control-bo
 - [ ] Power from Ender 3 Pro 24V PSU via LM2596 buck converter (→ 5V USB-C for RPi)
 - [ ] Expose full-size SD slot on left wall (extended from Ender 3 Pro microSD)
 - [ ] Route USB-A cable from Ender 3 Pro mainboard through back wall to RPi
-- [ ] LCD at 45° tilt toward operator for comfortable touchscreen use
+- [ ] LCD tilt maximised toward operator (back wall at 48 mm, front wall at minimum height above flat RPi stack)
 - [ ] Integrated fan ventilation with permanent dust filter mesh
 
 ---

@@ -1,6 +1,6 @@
 # Design Requirements
 
-**Last Updated:** 2026-03-04
+**Last Updated:** 2026-03-04 (rev 2)
 **Design:** 2-piece enclosure (Base + Cover) — see STATUS.md for design pivot history
 
 ---
@@ -32,15 +32,15 @@
 | REQ-002.2 | The base plate covers the stock Ender 3 Pro control box front panel entirely | MUST |
 | REQ-002.3 | Assembly must withstand vibration during printing without loosening | MUST |
 | REQ-002.4 | No 2020 T-slot nuts or 2020 clamp hardware required | MUST |
-| REQ-002.5 | LCD must face forward and upward (45° tilt from vertical) for comfortable touchscreen operation when standing at the printer | MUST |
-| REQ-002.6 | Side silhouette of assembled enclosure: rectangle with front-top corner cut at 45° | MUST |
-| REQ-002.7 | Assembly must support the combined weight of RPi 4B + LCD without flex | MUST |
-| REQ-002.8 | Assembly must not protrude into the path of the printer bed (Y-axis travel) | MUST |
-| REQ-002.9 | Assembly must not obstruct the X-axis gantry wheels or carriage movement | MUST |
-| REQ-002.12 | Total enclosure height (Z, including top and bottom walls) must not exceed **48 mm** — hard clearance limit from the Ender 3 Pro bed assembly | MUST |
-| REQ-002.13 | The 48 mm Z constraint requires the RPi 4B to be mounted flat (85 × 56 mm footprint in XY plane, PCB thickness ~17 mm in Z) rather than on-edge | MUST |
-| REQ-002.10 | Full-size SD card slot must be on the left wall and allow one-handed card insertion/removal | MUST |
-| REQ-002.11 | Cover must attach to base with M3 screws (no glue) and be removable for service | MUST |
+| REQ-002.5 | Total enclosure height (Z, including all walls) must not exceed **48 mm** — hard clearance limit from the Ender 3 Pro bed assembly | MUST |
+| REQ-002.6 | RPi 4B must be mounted flat (85 × 56 mm footprint in XY, PCB+heatsinks ~17–25 mm in Z) — standing on-edge is ruled out by the 48 mm height limit | MUST |
+| REQ-002.7 | LCD tilt must be **maximised toward the operator**: back wall at the full 48 mm, front wall at the minimum height dictated by the flat RPi stack + clearance. Do not target a fixed angle — derive it from the geometry | MUST |
+| REQ-002.8 | Side silhouette: right-trapezoid — back wall tall (48 mm), front wall short (minimum), angled top face spanning between them holding the LCD | MUST |
+| REQ-002.9 | Assembly must support the combined weight of RPi 4B + LCD without flex | MUST |
+| REQ-002.10 | Assembly must not protrude into the path of the printer bed (Y-axis travel) | MUST |
+| REQ-002.11 | Assembly must not obstruct the X-axis gantry wheels or carriage movement | MUST |
+| REQ-002.12 | Full-size SD card slot must be on the left wall and allow one-handed card insertion/removal | MUST |
+| REQ-002.13 | Cover must attach to Base with M3 screws (no glue) and be removable for service | MUST |
 
 ---
 

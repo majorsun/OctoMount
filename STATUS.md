@@ -14,7 +14,7 @@ The original 5-piece design (enclosure body + bezel + bracket arm + rear panel +
 
 Key changes from original design:
 - Mounting: M5 flat-head screws into 4040 beam end face (replaces 2020 T-slot clamp)
-- LCD tilt: 45° (cover face angle), not 15° bracket tilt
+- LCD tilt: maximised — back wall at 48 mm (hard limit), front wall at minimum height above flat RPi stack; angle derived from geometry, not fixed at 45°
 - USB-A: exits back wall to Ender 3 Pro mainboard (not top face)
 - USB-C: enters right-bottom corner via 4040 T-slot channel
 - Buck converter: inside base body with adhesive heatsink (no separate tray part)
