@@ -37,6 +37,8 @@
 | REQ-002.7 | Assembly must support the combined weight of RPi 4B + LCD without flex | MUST |
 | REQ-002.8 | Assembly must not protrude into the path of the printer bed (Y-axis travel) | MUST |
 | REQ-002.9 | Assembly must not obstruct the X-axis gantry wheels or carriage movement | MUST |
+| REQ-002.12 | Total enclosure height (Z, including top and bottom walls) must not exceed **48 mm** — hard clearance limit from the Ender 3 Pro bed assembly | MUST |
+| REQ-002.13 | The 48 mm Z constraint requires the RPi 4B to be mounted flat (85 × 56 mm footprint in XY plane, PCB thickness ~17 mm in Z) rather than on-edge | MUST |
 | REQ-002.10 | Full-size SD card slot must be on the left wall and allow one-handed card insertion/removal | MUST |
 | REQ-002.11 | Cover must attach to base with M3 screws (no glue) and be removable for service | MUST |
 
