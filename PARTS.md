@@ -1,7 +1,8 @@
 # Parts List / Bill of Materials
 
 **Project:** OctoMount — RPi 4B + MPI4008 LCD enclosure for Ender 3 Pro
-**Last Updated:** 2026-03-02
+**Last Updated:** 2026-03-04
+**Design:** 2-piece (Base + Cover)
 
 Legend: ✅ On hand / ordered &nbsp;|&nbsp; 🛒 Needs to be purchased &nbsp;|&nbsp; 🖨️ 3D printed
 
@@ -15,6 +16,7 @@ Legend: ✅ On hand / ordered &nbsp;|&nbsp; 🛒 Needs to be purchased &nbsp;|&n
 | 2 | MPI4008 LCD Kit | 4" HDMI, 800×480, resistive touch, w/ integrated fan | LCDwiki / Miuzei | ✅ | Includes GPIO stacking header and fan |
 | 3 | Buck converter | LM2596 adjustable step-down w/ LED voltmeter | Temu (goods_id 601099525293943) | ✅ | Set output to 5V |
 | 4 | SD card extension | microSD male → full-size SD female, panel-mount | AliExpress (item 2255801037535913) | ✅ | Verify cable length before routing |
+| 5 | LM2596 adhesive heatsink | ~14 × 14 mm aluminum thermal pad, self-adhesive | AliExpress / Amazon | 🛒 | Sticks to LM2596 IC on buck converter PCB |
 
 ---
 
@@ -22,10 +24,10 @@ Legend: ✅ On hand / ordered &nbsp;|&nbsp; 🛒 Needs to be purchased &nbsp;|&n
 
 | # | Item | Spec | Source | Status | Notes |
 |---|---|---|---|---|---|
-| 5 | USB-A to micro-USB cable | Short, ~30 cm | Amazon / local | 🛒 | RPi USB-A → Ender 3 Pro front USB port |
-| 6 | USB-C pigtail / breakout | USB-C male plug with bare wire ends, 5V/3A rated | Amazon / AliExpress | 🛒 | Buck converter 5V output → RPi USB-C power in |
-| 7 | 24V tap wire | 22 AWG stranded, red + black, ~50 cm | Local electronics | 🛒 | PSU terminal → buck converter input |
-| 8 | Wire ferrules or spade terminals | For PSU terminal connections | Local electronics | 🛒 | Crimped connection to PSU screw terminals |
+| 6 | USB-A extension / short cable | USB-A male → USB-A female or short patch, ~20–30 cm | Amazon / local | 🛒 | Routes from Ender 3 Pro control box mainboard USB → RPi USB-A through back wall |
+| 7 | USB-C pigtail / breakout | USB-C male plug with bare wire ends, 5V/3A rated | Amazon / AliExpress | 🛒 | Buck converter 5V output → RPi USB-C power in |
+| 8 | 24V tap wire | 22 AWG stranded, red + black, ~50 cm | Local electronics | 🛒 | PSU terminal → buck converter input |
+| 9 | Wire ferrules or spade terminals | For PSU terminal connections | Local electronics | 🛒 | Crimped connection to PSU screw terminals |
 
 ---
 
@@ -33,8 +35,8 @@ Legend: ✅ On hand / ordered &nbsp;|&nbsp; 🛒 Needs to be purchased &nbsp;|&n
 
 | # | Item | Spec | Source | Status | Notes |
 |---|---|---|---|---|---|
-| 9 | Polyfuse (resettable fuse) | 24V, 1A hold / 2A trip, inline | DigiKey / Mouser | 🛒 | On 24V input line before buck converter |
-| 10 | Heat shrink tubing | Assorted 2–6 mm | Local | 🛒 | Insulate all bare wire splices |
+| 10 | Polyfuse (resettable fuse) | 24V, 1A hold / 2A trip, inline | DigiKey / Mouser | 🛒 | On 24V input line before buck converter |
+| 11 | Heat shrink tubing | Assorted 2–6 mm | Local | 🛒 | Insulate all bare wire splices |
 
 ---
 
@@ -42,13 +44,11 @@ Legend: ✅ On hand / ordered &nbsp;|&nbsp; 🛒 Needs to be purchased &nbsp;|&n
 
 | # | Item | Spec | Qty | Source | Status | Notes |
 |---|---|---|---|---|---|---|
-| 11 | M3 × 8mm socket head screws | DIN 912 | 8 | Local / Amazon | 🛒 | Enclosure assembly |
-| 12 | M3 × 12mm socket head screws | DIN 912 | 4 | Local / Amazon | 🛒 | Bracket to extrusion |
-| 13 | M3 × 16mm socket head screws | DIN 912 | 4 | Local / Amazon | 🛒 | Buck converter mount, misc |
-| 14 | M3 T-slot nuts | 2020 V-slot, spring-loaded or hammer | 4 | Amazon / AliExpress | 🛒 | Frame mounting |
-| 15 | M3 hex nuts | Standard | 8 | Local | 🛒 | General assembly |
-| 16 | M2.5 × 6mm screws + nuts | — | 4+4 | Local / Amazon | 🛒 | RPi 4B PCB standoff mounting |
-| 17 | M2.5 × 5mm brass standoffs (F-F) | — | 4 | Amazon / AliExpress | 🛒 | RPi PCB raised off enclosure floor |
+| 12 | M5 flat-head screws | M5 × 12 mm countersunk (measure actual panel thickness before ordering) | 2 | Local / Amazon | 🛒 | Attach base plate to 4040 beam end face, replacing original control-box screws |
+| 13 | M2.5 × 8 mm screws | Socket head or countersunk | 4 | Local / Amazon | 🛒 | RPi 4B PCB standoff mounting |
+| 14 | M2.5 brass standoffs (M-F) | M2.5, ~5 mm height | 4 | Amazon / AliExpress | 🛒 | Raise RPi PCB off base floor |
+| 15 | M3 screws for cover | M3 × 8 mm socket head | 4 | Local / Amazon | 🛒 | Attach Cover to Base |
+| 16 | M3 heat-set inserts (optional) | M3, standard press-fit | 4 | Amazon / AliExpress | 🛒 | Optional: for M3 cover attachment into Base bosses |
 
 ---
 
@@ -56,23 +56,19 @@ Legend: ✅ On hand / ordered &nbsp;|&nbsp; 🛒 Needs to be purchased &nbsp;|&n
 
 | # | Item | Spec | Source | Status | Notes |
 |---|---|---|---|---|---|
-| 18 | Dust filter mesh | Fine nylon or foam sheet, ~100 × 100 mm | Amazon / AliExpress | 🛒 | Cut to fit ventilation openings; permanently glued in |
-| 19 | Micro SD card | 16GB+ Class 10 / A1 | Amazon | 🛒 | RPi OS (OctoPi image) |
-| 20 | Stylus pen | Resistive touch, ~105 mm × 8–9 mm | Included with MPI4008 kit or Amazon | ✅ / 🛒 | Check if included with LCD kit |
+| 17 | Dust filter mesh | Fine nylon or foam sheet, ~100 × 100 mm | Amazon / AliExpress | 🛒 | Cut to fit ventilation openings; permanently glued in |
+| 18 | Micro SD card | 16GB+ Class 10 / A1 | Amazon | 🛒 | RPi OS (OctoPi image) |
 
 ---
 
 ## 6. 3D Printed Parts
 
-> STL files will be published in `/stl` once CAD is complete.
+> STL files will be published in `/stl` once CAD redesign is complete.
 
 | # | Part | Material | Est. Print Time | Notes |
 |---|---|---|---|---|
-| P1 | Main enclosure body | PETG | TBD | Houses RPi+LCD assembly and buck converter |
-| P2 | 2020 extrusion bracket | PETG | TBD | Clamps to left front vertical upright; angled for tilt |
-| P3 | LCD front bezel / frame | PETG | TBD | Frames MPI4008 display; includes stylus clip slot on side |
-| P4 | Rear panel / lid | PETG | TBD | Closes enclosure; ventilation openings with dust filter |
-| P5 | Buck converter tray | PETG | TBD | Retention bracket inside enclosure for LM2596 module |
+| P1 | Base | PETG | TBD | Mounting plate + arm shelf + enclosure walls + RPi bosses + SD slot + buck cavity |
+| P2 | Cover | PETG | TBD | Angled lid with 45° front-top face; LCD window cutout; attaches to Base with 4× M3 screws |
 
 ---
 
@@ -80,11 +76,11 @@ Legend: ✅ On hand / ordered &nbsp;|&nbsp; 🛒 Needs to be purchased &nbsp;|&n
 
 | Category | Items | Estimated Cost |
 |---|---|---|
-| Core electronics | 4 items | Already ordered / on hand |
+| Core electronics | 5 items | Mostly on hand; ~$3–5 for heatsink |
 | Cables & connectors | 4 items | ~$10–15 |
 | Protection & safety | 2 items | ~$5 |
-| Fasteners | 7 items | ~$10–15 |
-| Filtration & finishing | 3 items | ~$5–10 |
-| 3D printed parts | 5 parts | Filament only (~$3–5) |
+| Fasteners | 5 items | ~$8–12 |
+| Filtration & finishing | 2 items | ~$3–5 |
+| 3D printed parts | 2 parts | Filament only (~$2–3) |
 
 > Cost estimates are approximate. Verify prices at time of purchase.

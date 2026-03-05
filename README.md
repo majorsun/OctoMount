@@ -12,7 +12,7 @@ Designed for use with [OctoPrint](https://octoprint.org/) — giving you a compa
 |---|---|---|
 | Single Board Computer | Raspberry Pi 4B | 2GB/4GB/8GB variants |
 | Display | MPI4008 (LCDwiki 4" HDMI Display-C) | 800×480 IPS, resistive touch |
-| Printer | Creality Ender 3 Pro | 2020 V-slot aluminum extrusion frame |
+| Printer | Creality Ender 3 Pro | 4040 aluminum extrusion frame |
 
 ### MPI4008 Display Specs
 
@@ -20,23 +20,45 @@ Designed for use with [OctoPrint](https://octoprint.org/) — giving you a compa
 - **Resolution:** 800 × 480
 - **Touch:** 4-wire resistive
 - **Interface:** HDMI (video) + 13×2 GPIO header (power + touch)
-- **Module dimensions:** 143 × 134 × 51 mm
+- **Module dimensions:** 143 × 134 × 51 mm (with RPi stacked)
 
 ### Raspberry Pi 4B Specs
 
 - **Dimensions:** 85 × 56 × 17 mm
-- **Ports used:** HDMI micro (to LCD), USB-A (printer connection), USB-C (power)
+- **Ports used:** HDMI micro (to LCD), USB-A (printer connection), USB-C (power in)
+
+---
+
+## Design Overview
+
+OctoMount is a **2-piece design** — Base and Cover — that replaces the Ender 3 Pro control box front panel:
+
+- **Base** — single printed part that serves as both the mounting bracket and the enclosure body. It bolts to the 4040 control-box beam using the existing two M5 diagonal screw holes, covers the stock front panel, and houses the RPi 4B, LM2596 buck converter, and full-size SD slot.
+- **Cover** — angled lid that snaps/screws onto the Base. The front face is cut at 45° to tilt the MPI4008 LCD toward the operator. Attaches with 4× M3 screws.
+
+### Mounting Strategy
+
+The Base plate bolts directly to the end face of the Ender 3 Pro 4040 control-box beam using **2× M5 flat-head screws** in the existing diagonal hole pattern (top-left at 10,10 mm; bottom-right at 30,30 mm). Longer M5 screws pass through the Base plate and original plastic panel into the beam — no new holes required.
+
+### Port Routing
+
+| Port | Location | Purpose |
+|---|---|---|
+| Full-size SD slot | Left wall of Base | Ender 3 Pro microSD extension (print file access) |
+| USB-A | Back wall of Base | Cable to Ender 3 Pro mainboard USB (routed through control box) |
+| USB-C power | Right-bottom corner of Base | 5V from LM2596 buck converter, entering via 4040 T-slot channel |
+| Micro HDMI | Internal | RPi → MPI4008 LCD (inside enclosure) |
 
 ---
 
 ## Project Goals
 
-- [ ] Design a 3D-printable enclosure housing the RPi 4B + MPI4008 LCD + buck converter
-- [ ] Mount to the Ender 3 Pro left front vertical extrusion, tilted toward the operator
-- [ ] Power from the Ender 3 Pro 24V PSU via LM2596 buck converter (→ 5V for RPi)
-- [ ] Expose full-size SD slot (extended from Ender 3 Pro microSD) on left side
-- [ ] Expose RPi microSD slot and USB-A port for printer USB cable
-- [ ] Include stylus clip/slot on LCD bezel side
+- [x] Design a 2-piece 3D-printable enclosure for RPi 4B + MPI4008 LCD + LM2596 buck converter
+- [x] Mount to the Ender 3 Pro 4040 beam end face via existing M5 screw holes
+- [ ] Power from Ender 3 Pro 24V PSU via LM2596 buck converter (→ 5V USB-C for RPi)
+- [ ] Expose full-size SD slot on left wall (extended from Ender 3 Pro microSD)
+- [ ] Route USB-A cable from Ender 3 Pro mainboard through back wall to RPi
+- [ ] LCD at 45° tilt toward operator for comfortable touchscreen use
 - [ ] Integrated fan ventilation with permanent dust filter mesh
 
 ---
@@ -45,9 +67,10 @@ Designed for use with [OctoPrint](https://octoprint.org/) — giving you a compa
 
 | File | Description | Status |
 |---|---|---|
-| `PARTS.md` | Full bill of materials — parts to buy + 3D printed parts list | ✅ Draft |
-| `stl/` | 3D print files for all enclosure parts (5 parts) | 🔄 Pending CAD |
-| `docs/ASSEMBLY.md` | Enclosure diagram + step-by-step assembly instructions | ✅ Draft |
+| `PARTS.md` | Full bill of materials — parts to buy + 3D printed parts list | ✅ Updated |
+| `REQUIREMENTS.md` | Full design requirements | ✅ Updated |
+| `stl/` | 3D print files (2 parts: Base + Cover) | 🔄 Pending CAD redesign |
+| `docs/ASSEMBLY.md` | Enclosure diagram + step-by-step assembly instructions | 🔄 Pending |
 | `img/wiring_diagram.png` | Wiring diagram (PSU → buck converter → RPi) | 🔄 Pending |
 | `img/renders/` | CAD renders of final enclosure | 🔄 Pending CAD |
 
@@ -57,11 +80,8 @@ Designed for use with [OctoPrint](https://octoprint.org/) — giving you a compa
 
 | Part | Description |
 |---|---|
-| P1 | Main enclosure body |
-| P2 | 2020 extrusion bracket (tilted) |
-| P3 | LCD front bezel (with stylus clip) |
-| P4 | Rear panel / lid (with filtered vents) |
-| P5 | Buck converter tray |
+| Base | Mounting plate + arm shelf + enclosure walls + RPi bosses + SD slot + buck converter mount |
+| Cover | Angled lid (45° front-top face) with LCD window cutout; attaches with 4× M3 screws |
 
 ---
 
@@ -73,15 +93,12 @@ OctoMount/
 ├── REQUIREMENTS.md        # Full design requirements
 ├── STATUS.md              # Project phase tracker
 ├── PARTS.md               # Bill of materials
-├── cad/                   # Source CAD files (FreeCAD / Fusion 360)
+├── cad/                   # OpenSCAD source files
 ├── stl/                   # Export-ready STL files for printing
-│   ├── P1_enclosure_body.stl
-│   ├── P2_bracket.stl
-│   ├── P3_lcd_bezel.stl
-│   ├── P4_rear_panel.stl
-│   └── P5_buck_tray.stl
+│   ├── Base.stl
+│   └── Cover.stl
 ├── docs/
-│   └── ASSEMBLY.md        # Enclosure diagram + assembly instructions
+│   └── ASSEMBLY.md        # Assembly instructions
 └── img/                   # Renders, wiring diagram, photos
 ```
 
@@ -89,21 +106,18 @@ OctoMount/
 
 ## Software
 
-This mount is designed for use with:
 - [OctoPrint](https://octoprint.org/) — web-based 3D printer control
 - [OctoPi](https://github.com/guysoft/OctoPi) — Raspberry Pi OS image with OctoPrint pre-installed
-- [LCD driver (goodtft)](https://github.com/goodtft/LCD-show) — MPI4008 display driver
+- [LCD driver (goodtft)](https://github.com/goodtft/LCD-show) — MPI4008 display driver (`sudo ./MPI4008-show`)
 
 ---
 
 ## Printing Notes
 
-> Print settings and recommended materials will be added as the design is finalized.
-
 - Material: PETG recommended (heat resistance near printer)
-- Layer height: 0.2mm
+- Layer height: 0.2 mm
 - Infill: 30%+
-- Supports: Required for overhangs
+- Supports: Minimal (design oriented to minimise overhangs)
 
 ---
 
