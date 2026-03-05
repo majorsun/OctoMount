@@ -54,17 +54,14 @@ Old 5-piece OpenSCAD files remain in `cad/` as reference but are superseded.
 
 ## Phase 2 — CAD Design
 
-### Superseded (5-piece) — kept for reference only
-- [x] p1_enclosure.scad — original enclosure body
-- [x] p2_bracket.scad — original 2020 T-slot bracket arm
-- [x] p3_bezel.scad — original LCD bezel with stylus clip
-- [x] p4_rear_panel.scad — original rear panel with hex vents
-- [x] p5_buck_tray.scad — original buck converter tray
+### Superseded (5-piece) — archived in cad/legacy/
+- [x] p1_enclosure.scad, p2_bracket.scad, p3_bezel.scad, p4_rear_panel.scad, p5_buck_tray.scad
 
 ### 2-Piece Redesign (active)
-- [ ] Redesign Base in OpenSCAD: plate + arm shelf + walls + RPi bosses + SD slot + buck mount
-- [ ] Redesign Cover in OpenSCAD: angled lid (45° face) + LCD window cutout + M3 attachment points
-- [ ] Add openings: USB-A back wall, USB-C right-bottom corner, SD left wall
+- [x] params.scad — rewritten: flat RPi orientation, derived BASE_OUTER_Z=32mm, COVER_BACK_Z=16mm, LCD tilt ~8° from horizontal
+- [x] base.scad — mounting plate + arm shelf + open-top tray + RPi standoff bosses + M3 cover bosses + USB-A/Ethernet back wall + USB-C right-bottom + SD left wall + M5 plate holes
+- [x] cover.scad — hull()-based trapezoid shell + LCD window + PCB recess + M3 corner holes
+- [x] assembly.scad — positions Base + Cover; EXPLODE=1 option
 - [ ] Confirm all TBD dimensions against physical hardware before export
 - [ ] Iterate port positions from first prototype print
 - [ ] Export STLs for prototype print

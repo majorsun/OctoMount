@@ -1,0 +1,12 @@
+# Generated STL exports — keep source .scad, ignore build outputs in stl/
+stl/*.stl
+
+# OpenSCAD build artifacts
+*.csg
+
+# Claude Code internal directory
+.claude/
+
+# OS files
+.DS_Store
+Thumbs.db
