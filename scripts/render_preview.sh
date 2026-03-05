@@ -26,7 +26,7 @@ echo "Rendering $SCAD -> $OUT ..."
 
 "$OPENSCAD" \
     --render \
-    --camera=53,40,35,38,0,45,380 \
+    --camera=53,20,55,55,0,20,320 \
     --imgsize=1200,900 \
     --colorscheme=Tomorrow \
     -o "$OUT" \
