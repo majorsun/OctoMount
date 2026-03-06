@@ -45,7 +45,7 @@ module _base_solid() {
     // Mounting plate: vertical plate at Y = OUTER_Y + ARM_L
     // Height = PLATE_H, width = PLATE_W, thickness = WALL
     // Centred in X relative to the enclosure
-    _plate_x0 = (OUTER_X - PLATE_W) / 2;
+    _plate_x0 = PLATE_X0;
     translate([_plate_x0, OUTER_Y + ARM_L, 0])
         cube([PLATE_W, WALL, PLATE_H]);
 
@@ -95,7 +95,7 @@ module _base_cuts() {
         cube([WALL + 0.1, SD_W, SD_H]);
 
     // ── M5 countersunk holes through mounting plate ───────────
-    _plate_x0 = (OUTER_X - PLATE_W) / 2;
+    _plate_x0 = PLATE_X0;
     _plate_y  = OUTER_Y + ARM_L;
     for (h = [MOUNT_H1, MOUNT_H2])
         translate([_plate_x0 + h[0], _plate_y + WALL, h[1]])

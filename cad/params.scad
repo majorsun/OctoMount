@@ -90,9 +90,9 @@ INNER_X = LCD_PCB_X + 2*CLR;              // = 100 mm
 // Y: RPi long axis (85) + front/rear clearance
 INNER_Y = RPI_Y + 2*CLR;                  // = 87 mm
 // Z: standoff height + RPi stack + clearance above
-STOFF_H       = 5.0;     // RPi standoff height
-CLR_ABOVE_RPI = 2.0;     // clearance above RPi heatsinks
-BASE_INNER_Z  = STOFF_H + RPI_T + CLR_ABOVE_RPI;  // = 29 mm (TBD)
+STOFF_H       = 3.0;     // RPi standoff height (reduced to save base height; add floor grooves if wires are tight)
+CLR_ABOVE_RPI = 1.0;     // clearance above RPi heatsinks (tight — verify RPI_T before printing)
+BASE_INNER_Z  = STOFF_H + RPI_T + CLR_ABOVE_RPI;  // = 26 mm (TBD)
 
 // ── RPi position within inner cavity ─────────────────────────
 // RPi centred in X (LCD also centred → they share X centre)
@@ -111,22 +111,25 @@ BUCK_Y0 = CLR;                     // flush front with RPi (same Y zone)
 // ── Outer base dimensions ─────────────────────────────────────
 OUTER_X      = INNER_X + 2*WALL;         // = 106 mm
 OUTER_Y      = INNER_Y + 2*WALL;         // =  93 mm
-BASE_OUTER_Z = WALL + BASE_INNER_Z;      // =  32 mm (open top, no lid wall)
+BASE_OUTER_Z = WALL + BASE_INNER_Z;      // =  29 mm (open top, no lid wall)
 
 // ── Tilt & cover geometry ─────────────────────────────────────
-// RPi+LCD assembly and cover face both at TILT_ANGLE from horizontal.
-// Front lip is minimal; back wall height is derived from tilt + depth.
-TILT_ANGLE    = 39.0;    // degrees from horizontal (LCD tilted toward operator)
+// Tilt angle is maximised within the height budget.
+// Plate is 125 mm wide (left-aligned), leaving right side clear for bed-mount
+// screws → height ceiling relaxed to MAX_OUTER_Z = 52 mm.
+MAX_OUTER_Z   = 52.0;    // clearance ceiling (narrower left-aligned plate option)
 COVER_FRONT_Z = WALL;    // front lip height  (= WALL = 3 mm)
-COVER_BACK_Z  = COVER_FRONT_Z + OUTER_Y * tan(TILT_ANGLE);
+COVER_BACK_Z  = MAX_OUTER_Z - BASE_OUTER_Z;                          // = 23 mm
+TILT_ANGLE    = atan((COVER_BACK_Z - COVER_FRONT_Z) / OUTER_Y);      // ≈ 12.1°
 LCD_FIT_CLR   = 0.5;     // per-side clearance for snug LCD PCB recess in cover
 
-echo(str("Cover back wall height:  ", COVER_BACK_Z, " mm"));
+echo(str("LCD tilt from horizontal: ", TILT_ANGLE, "°"));
 echo(str("Total outer height (back corner): ", BASE_OUTER_Z + COVER_BACK_Z, " mm"));
 
 // ── Mounting bracket (plate + arm shelf) ─────────────────────
-PLATE_W   = 145.0;   // plate width  (matches control box front panel)
+PLATE_W   = 125.0;   // plate width  (20 mm narrower than control box; right side clear for bed screws)
 PLATE_H   =  40.0;   // plate height (= 4040 cross-section)
+PLATE_X0  = (OUTER_X - 145.0) / 2;  // plate left edge = left corner of 4040 beam face (fixed reference)
 ARM_L     =  15.0;   // cable gap: plate front → enclosure rear face
 ARM_THICK =   8.0;   // arm shelf Z thickness
 
