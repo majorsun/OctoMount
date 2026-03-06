@@ -64,11 +64,17 @@ PORT_ETH_W    = 20.0;   // Ethernet opening width
 PORT_ETH_H    = 16.0;   // Ethernet opening height
 
 // ── MPI4008 4″ LCD ────────────────────────────────────────────
-LCD_PCB_X  = 98.0;    // LCD PCB width  (along enclosure X) — TBD
-LCD_PCB_SL = 60.0;    // LCD PCB height along the angled face slope — TBD
-LCD_T      =  5.0;    // LCD module thickness (perpendicular to face) — TBD
+// The LCD plugs directly onto the RPi 40-pin GPIO header — their
+// relative XY position is mechanically fixed and must be measured
+// as a coupled assembly.  Offsets below are from RPi PCB centre.
+LCD_PCB_X  = 98.0;    // LCD PCB width  (along enclosure X) — TBD measure
+LCD_PCB_SL = 60.0;    // LCD PCB depth along the slope      — TBD measure
+LCD_T      =  5.0;    // LCD module thickness (perp. to face) — TBD measure
 LCD_ACT_X  = 87.7;    // active area width  (confirmed)
 LCD_ACT_SL = 52.2;    // active area height along slope (confirmed)
+// LCD PCB centre offset from RPi PCB centre (measured from coupled unit) — TBD
+LCD_OFS_X  =  0.0;    // +X = toward RPi USB-A side — TBD
+LCD_OFS_Y  =  0.0;    // +Y = toward RPi Ethernet side — TBD
 
 // ── Fan (in MPI4008 kit sandwich) ────────────────────────────
 FAN_SIZE = 30.0;   // fan square side — TBD

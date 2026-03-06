@@ -37,23 +37,26 @@ if (SHOW_INTERNALS) {
     _wz  = WALL / cos(TILT_ANGLE);
     _tan = tan(TILT_ANGLE);
 
-    // XY centres of RPi and LCD (both share the cover centre in X and Y)
+    // RPi PCB centre in cover XY — LCD position is fixed relative to this
+    // because the LCD plugs directly onto the RPi GPIO header.
     _rx_ctr = WALL + RPI_X0 + RPI_X/2;
     _ry_ctr = WALL + RPI_Y0 + RPI_Y/2;
-    _lx_ctr = OUTER_X / 2;
-    _ly_ctr = OUTER_Y / 2;
 
-    // Inner face Z evaluated at each block's Y centre
+    // LCD PCB centre = RPi centre + measured GPIO-header offset (both TBD)
+    _lx_ctr = _rx_ctr + LCD_OFS_X;
+    _ly_ctr = _ry_ctr + LCD_OFS_Y;
+
+    // Inner face Z at each block's Y centre
     _rface_z = COVER_FRONT_Z - _wz + _ry_ctr * _tan;
     _lface_z = COVER_FRONT_Z - _wz + _ly_ctr * _tan;
 
-    // Assembly depth layout (local -Z = into interior):
+    // Depth layout along local -Z (= into cover interior from inner face):
     //   0              inner face
     //   -CLR_ABOVE_RPI LCD screen face
-    //   -(CLR+LCD_T)   RPi PCB top  (= -(STOFF_H - RPI_T))
-    //   -STOFF_H       RPi PCB bottom / standoff tip
+    //   -(CLR+LCD_T)   LCD PCB back / RPi PCB top (GPIO side)
+    //   -STOFF_H       RPi PCB bottom (standoff tip, mounting holes)
 
-    // RPi block: local z from -STOFF_H to -(STOFF_H - RPI_T)
+    // RPi block
     color(RPI_COL)
         translate([0, 0, _cover_dz])
             translate([_rx_ctr, _ry_ctr, _rface_z])
@@ -61,7 +64,7 @@ if (SHOW_INTERNALS) {
                     translate([-RPI_X/2, -RPI_Y/2, -STOFF_H])
                         cube([RPI_X, RPI_Y, RPI_T]);
 
-    // LCD block: local z from -(CLR_ABOVE_RPI + LCD_T) to -CLR_ABOVE_RPI
+    // LCD block — position derived from RPi centre + GPIO offset
     color(LCD_COL)
         translate([0, 0, _cover_dz])
             translate([_lx_ctr, _ly_ctr, _lface_z])
