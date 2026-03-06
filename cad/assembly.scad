@@ -33,37 +33,38 @@ color(COVER_COL)
 
 // Ghost internals — approximate bounding boxes, aligned with face
 if (SHOW_INTERNALS) {
-    // Helper: Z of inner face at a given Y within the cover local frame
-    // Inner face Z(y) = COVER_FRONT_Z - WALL/cos(θ) + y*tan(θ)
+    // Inner face Z(y) = COVER_FRONT_Z - WALL/cos(θ) + y·tan(θ)
     _wz  = WALL / cos(TILT_ANGLE);
     _tan = tan(TILT_ANGLE);
 
-    // RPi bounding box (RPI_X × RPI_Y × RPI_T), parallel to inner face.
-    // Front edge at Y = WALL + RPI_Y0; centred in X.
-    _ry0 = WALL + RPI_Y0;       // cover-local Y of RPi front edge
-    _rx0 = WALL + RPI_X0;       // cover-local X of RPi left edge
+    // XY centres of RPi and LCD (both share the cover centre in X and Y)
+    _rx_ctr = WALL + RPI_X0 + RPI_X/2;
+    _ry_ctr = WALL + RPI_Y0 + RPI_Y/2;
+    _lx_ctr = OUTER_X / 2;
+    _ly_ctr = OUTER_Y / 2;
 
-    // Inner face Z at RPi front edge
-    _rface_z = COVER_FRONT_Z - _wz + _ry0 * _tan;
+    // Inner face Z evaluated at each block's Y centre
+    _rface_z = COVER_FRONT_Z - _wz + _ry_ctr * _tan;
+    _lface_z = COVER_FRONT_Z - _wz + _ly_ctr * _tan;
 
-    // RPi block: from face inward by (STOFF_H + RPI_T/2) to (STOFF_H - RPI_T/2)
-    // Placed at inner face, rotated to lie parallel to it, then shifted down
+    // Assembly depth layout (local -Z = into interior):
+    //   0              inner face
+    //   -CLR_ABOVE_RPI LCD screen face
+    //   -(CLR+LCD_T)   RPi PCB top  (= -(STOFF_H - RPI_T))
+    //   -STOFF_H       RPi PCB bottom / standoff tip
+
+    // RPi block: local z from -STOFF_H to -(STOFF_H - RPI_T)
     color(RPI_COL)
-        translate([0, 0, _cover_dz])   // into cover frame
-            translate([_rx0 + RPI_X/2, _ry0 + RPI_Y/2, _rface_z])
+        translate([0, 0, _cover_dz])
+            translate([_rx_ctr, _ry_ctr, _rface_z])
                 rotate([-TILT_ANGLE, 0, 0])
-                    translate([-RPI_X/2, -RPI_Y/2, -(STOFF_H + RPI_T)])
+                    translate([-RPI_X/2, -RPI_Y/2, -STOFF_H])
                         cube([RPI_X, RPI_Y, RPI_T]);
 
-    // LCD bounding box (LCD_PCB_X × LCD_PCB_SL × LCD_T), same orientation,
-    // stacked between the inner face and the RPi (LCD closest to face).
-    _lx0 = OUTER_X/2;
-    _ly0 = OUTER_Y/2;
-    _lface_z = COVER_FRONT_Z - _wz + _ly0 * _tan;
-
+    // LCD block: local z from -(CLR_ABOVE_RPI + LCD_T) to -CLR_ABOVE_RPI
     color(LCD_COL)
         translate([0, 0, _cover_dz])
-            translate([_lx0, _ly0, _lface_z])
+            translate([_lx_ctr, _ly_ctr, _lface_z])
                 rotate([-TILT_ANGLE, 0, 0])
                     translate([-LCD_PCB_X/2, -LCD_PCB_SL/2, -(CLR_ABOVE_RPI + LCD_T)])
                         cube([LCD_PCB_X, LCD_PCB_SL, LCD_T]);
