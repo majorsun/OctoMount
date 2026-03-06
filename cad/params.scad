@@ -6,7 +6,7 @@
 // RPi 4B orientation: FLAT
 //   X = RPi short axis (56 mm) — left/right in enclosure
 //   Y = RPi long  axis (85 mm) — front/back in enclosure
-//   Z = RPi stack height       — up/down, constrained to ≤ 48 mm total
+//   Z = RPi stack height       — up/down, total outer height ≤ 52 mm
 //
 //   USB-A / Ethernet short edge → BACK  wall (+Y face)
 //   USB-C / HDMI    short edge → FRONT wall (-Y face, internal pigtails)
@@ -26,7 +26,7 @@ M3_BOSS_DEPTH  = 6.0;    // M3 blind tapped-hole depth
 
 M25_CLEAR      = 2.7;    // M2.5 clearance hole (RPi mounting)
 M25_BOSS_R     = 3.5;    // M2.5 boss outer radius
-M25_BOSS_DEPTH = 5.0;    // M2.5 blind hole depth
+M25_BOSS_DEPTH = 3.0;    // M2.5 blind hole depth (≤ STOFF_H)
 
 M5_CLEAR  = 5.5;   // M5 clearance hole (4040 beam mount)
 M5_CS_D   = 9.5;   // M5 flat-head countersink OD (matches 4040 spec)

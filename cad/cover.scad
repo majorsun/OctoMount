@@ -4,7 +4,7 @@
 // The Cover is a single printed part:
 //   • Right-trapezoid side profile (front wall short, back wall tall)
 //   • Front wall height = COVER_FRONT_Z  (thin lip = WALL)
-//   • Back  wall height = COVER_BACK_Z   (derived: FRONT + OUTER_Y*tan(TILT_ANGLE))
+//   • Back  wall height = COVER_BACK_Z   (derived: MAX_OUTER_Z − BASE_OUTER_Z = 23 mm)
 //   • Angled top face at TILT_ANGLE from horizontal — holds LCD parallel to face
 //   • LCD active-area window (through-hole) in angled face
 //   • Snug PCB recess (LCD_FIT_CLR per side) around window

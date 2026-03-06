@@ -44,7 +44,7 @@ module _base_solid() {
 
     // Mounting plate: vertical plate at Y = OUTER_Y + ARM_L
     // Height = PLATE_H, width = PLATE_W, thickness = WALL
-    // Centred in X relative to the enclosure
+    // Left-aligned to 4040 beam face (PLATE_X0); right side intentionally shorter
     _plate_x0 = PLATE_X0;
     translate([_plate_x0, OUTER_Y + ARM_L, 0])
         cube([PLATE_W, WALL, PLATE_H]);
