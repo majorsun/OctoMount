@@ -84,45 +84,44 @@ SD_W = 32.0;   // slot opening width in Y — TBD
 SD_H =  4.5;   // slot opening height in Z — TBD
 SD_POCKET = 34.0;  // card insertion depth in X (+X direction)
 
-// ── Base inner cavity ─────────────────────────────────────────
-// X: LCD PCB (98) is wider than RPi (56) → LCD drives INNER_X
+// ── Cavity footprint (shared by base slab and cover) ─────────
+// X: LCD PCB (98 mm) wider than RPi (56 mm) — LCD drives INNER_X
 INNER_X = LCD_PCB_X + 2*CLR;              // = 100 mm
-// Y: RPi long axis (85) + front/rear clearance
+// Y: RPi long axis (85 mm) + front/rear clearance
 INNER_Y = RPI_Y + 2*CLR;                  // = 87 mm
-// Z: standoff height + RPi stack + clearance above
-STOFF_H       = 3.0;     // RPi standoff height (reduced to save base height; add floor grooves if wires are tight)
-CLR_ABOVE_RPI = 1.0;     // clearance above RPi heatsinks (tight — verify RPI_T before printing)
-BASE_INNER_Z  = STOFF_H + RPI_T + CLR_ABOVE_RPI;  // = 26 mm (TBD)
 
-// ── RPi position within inner cavity ─────────────────────────
+// ── RPi + LCD assembly inside cover ──────────────────────────
+// Assembly mounts perpendicular to inner angled face.
+// Order from inner face outward: CLR_ABOVE_RPI → LCD screen → LCD PCB
+//                                → RPi (GPIO top) → RPi PCB → standoff tips
+CLR_ABOVE_RPI  = 1.0;     // clearance: LCD screen face to cover inner face — TBD
+ASSEMBLY_DEPTH = CLR_ABOVE_RPI + LCD_T + RPI_T;  // = 28 mm perp. to face — TBD
+STOFF_H        = ASSEMBLY_DEPTH;                  // standoff height: inner face → RPi PCB bottom
+
+// ── RPi position (centred in X, front-flush in Y) ─────────────
 // RPi centred in X (LCD also centred → they share X centre)
 RPI_X0 = (INNER_X - RPI_X) / 2;   // X offset of RPi -X edge from inner wall
 RPI_Y0 = CLR;                      // Y offset of RPi front edge from inner front wall
-// Standoff base sits on floor; RPi PCB at Z = STOFF_H
 
-// ── Buck position within inner cavity ────────────────────────
-// Buck beside RPi in X: RPi ends at RPI_X0+RPI_X; buck starts after CLR
-BUCK_X0 = RPI_X0 + RPI_X + CLR;   // X start of buck (≈ 24 mm from inner wall)
-BUCK_Y0 = CLR;                     // flush front with RPi (same Y zone)
-// Buck sits on floor: BUCK_Z0 = 0 (relative to inner floor)
-// Verify: BUCK_X0 + BUCK_X ≤ INNER_X
-// = (100-56)/2 + 56 + 1 + 23 = 22+56+1+23 = 102 mm > 100 mm  ← tight, TBD
+// ── Buck converter (in base wiring slab, beside RPi footprint) ─
+BUCK_X0 = RPI_X0 + RPI_X + CLR;   // X start of buck  — TBD fit check
+BUCK_Y0 = CLR;
 
-// ── Outer base dimensions ─────────────────────────────────────
-OUTER_X      = INNER_X + 2*WALL;         // = 106 mm
-OUTER_Y      = INNER_Y + 2*WALL;         // =  93 mm
-BASE_OUTER_Z = WALL + BASE_INNER_Z;      // =  29 mm (open top, no lid wall)
+// ── Outer dimensions ──────────────────────────────────────────
+OUTER_X      = INNER_X + 2*WALL;   // = 106 mm
+OUTER_Y      = INNER_Y + 2*WALL;   // =  93 mm
+BASE_OUTER_Z = 10.0;               // thin wiring/SD slab (RPi + LCD moved to cover)
 
 // ── Tilt & cover geometry ─────────────────────────────────────
-// Tilt angle is maximised within the height budget.
-// Plate is 125 mm wide (left-aligned), leaving right side clear for bed-mount
-// screws → height ceiling relaxed to MAX_OUTER_Z = 52 mm.
-MAX_OUTER_Z   = 52.0;    // clearance ceiling (narrower left-aligned plate option)
-COVER_FRONT_Z = WALL;    // front lip height  (= WALL = 3 mm)
-COVER_BACK_Z  = MAX_OUTER_Z - BASE_OUTER_Z;                          // = 23 mm
-TILT_ANGLE    = atan((COVER_BACK_Z - COVER_FRONT_Z) / OUTER_Y);      // ≈ 12.1°
-LCD_FIT_CLR   = 0.5;     // per-side clearance for snug LCD PCB recess in cover
+// Plate is 125 mm wide (left-aligned), height ceiling = 52 mm.
+// Cover front wall must clear the full RPi + LCD assembly perpendicular to face.
+MAX_OUTER_Z   = 52.0;    // clearance ceiling (narrower left-aligned plate)
+COVER_FRONT_Z = WALL + ASSEMBLY_DEPTH;        // = 31 mm (clears RPi+LCD stack at front)
+COVER_BACK_Z  = MAX_OUTER_Z - BASE_OUTER_Z;  // = 42 mm
+TILT_ANGLE    = atan((COVER_BACK_Z - COVER_FRONT_Z) / OUTER_Y);  // ≈ 6.7°
+LCD_FIT_CLR   = 0.5;     // per-side clearance for LCD PCB recess — TBD
 
+echo(str("Assembly depth (perp. to face): ", ASSEMBLY_DEPTH, " mm"));
 echo(str("LCD tilt from horizontal: ", TILT_ANGLE, "°"));
 echo(str("Total outer height (back corner): ", BASE_OUTER_Z + COVER_BACK_Z, " mm"));
 
