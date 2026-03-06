@@ -113,15 +113,16 @@ OUTER_X      = INNER_X + 2*WALL;         // = 106 mm
 OUTER_Y      = INNER_Y + 2*WALL;         // =  93 mm
 BASE_OUTER_Z = WALL + BASE_INNER_Z;      // =  32 mm (open top, no lid wall)
 
-// ── Height limit & cover geometry ────────────────────────────
-MAX_OUTER_Z    = 48.0;    // hard clearance limit from bed assembly
-COVER_BACK_Z   = MAX_OUTER_Z - BASE_OUTER_Z;  // = 16 mm
-COVER_FRONT_Z  = WALL;                         // =  3 mm (front lip of cover)
-// Tilt angle of LCD face from horizontal:
-//   atan((COVER_BACK_Z - COVER_FRONT_Z) / OUTER_Y)
-//   = atan(13 / 93) ≈ 7.9°  (LCD faces mostly upward, tilted toward operator)
-echo(str("LCD tilt from horizontal: ",
-         atan((COVER_BACK_Z - COVER_FRONT_Z) / OUTER_Y), "°"));
+// ── Tilt & cover geometry ─────────────────────────────────────
+// RPi+LCD assembly and cover face both at TILT_ANGLE from horizontal.
+// Front lip is minimal; back wall height is derived from tilt + depth.
+TILT_ANGLE    = 39.0;    // degrees from horizontal (LCD tilted toward operator)
+COVER_FRONT_Z = WALL;    // front lip height  (= WALL = 3 mm)
+COVER_BACK_Z  = COVER_FRONT_Z + OUTER_Y * tan(TILT_ANGLE);
+LCD_FIT_CLR   = 0.5;     // per-side clearance for snug LCD PCB recess in cover
+
+echo(str("Cover back wall height:  ", COVER_BACK_Z, " mm"));
+echo(str("Total outer height (back corner): ", BASE_OUTER_Z + COVER_BACK_Z, " mm"));
 
 // ── Mounting bracket (plate + arm shelf) ─────────────────────
 PLATE_W   = 145.0;   // plate width  (matches control box front panel)

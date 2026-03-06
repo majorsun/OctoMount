@@ -2,11 +2,12 @@
 // OctoMount — cover.scad  (2-piece redesign)
 //
 // The Cover is a single printed part:
-//   • Right-trapezoid side profile (back wall taller than front)
-//   • Front wall height = COVER_FRONT_Z  (thin lip)
-//   • Back  wall height = COVER_BACK_Z   (48 mm - base height)
-//   • Angled top face spans front→back — holds the LCD
-//   • LCD window slot through the angled face
+//   • Right-trapezoid side profile (front wall short, back wall tall)
+//   • Front wall height = COVER_FRONT_Z  (thin lip = WALL)
+//   • Back  wall height = COVER_BACK_Z   (derived: FRONT + OUTER_Y*tan(TILT_ANGLE))
+//   • Angled top face at TILT_ANGLE from horizontal — holds LCD parallel to face
+//   • LCD active-area window (through-hole) in angled face
+//   • Snug PCB recess (LCD_FIT_CLR per side) around window
 //   • Side walls (WALL thick each)
 //   • Back wall (WALL thick)
 //   • Open bottom (sits on base top rim)
@@ -15,7 +16,7 @@
 // Origin: bottom-front-left corner of the cover
 //         = top-front-left corner of the base (Z = BASE_OUTER_Z).
 //
-// Print: back-wall-down, angled face up.  ~8° tilt needs no supports.
+// Print: back-wall-down, angled face up.  Steep angle may need minimal supports.
 // ============================================================
 include <params.scad>
 
@@ -43,12 +44,10 @@ module _cover_shell() {
 
 // ── Inner void (remove interior, leaving walls + angled face) ─
 module _cover_inner_void() {
-    // Same hull trick, but inset by WALL on sides, front, and back.
-    // Top is inset by WALL measured perpendicularly to the angled face
-    // (for small angles, ~WALL in Z is close enough).
-    _dZ       = COVER_BACK_Z - COVER_FRONT_Z;
-    _face_ang = atan(_dZ / OUTER_Y);     // degrees from horizontal
-    _wall_z   = WALL / cos(_face_ang);   // wall thickness projected onto Z
+    // Inset by WALL on sides, front, and back.
+    // Top face wall thickness is WALL measured perpendicular to the face,
+    // which projects to WALL/cos(TILT_ANGLE) in the Z direction.
+    _wall_z = WALL / cos(TILT_ANGLE);
 
     hull() {
         translate([WALL, WALL, 0])
@@ -66,30 +65,29 @@ module _cover_cuts() {
     _cover_inner_void();
 
     // ── LCD window in angled face ─────────────────────────────
-    // Tilt angle from horizontal
-    _dZ   = COVER_BACK_Z - COVER_FRONT_Z;
-    _tilt = atan(_dZ / OUTER_Y);
-
     // Centre of the angled face in Y and Z
     _cY = OUTER_Y / 2;
-    _cZ = COVER_FRONT_Z + (_cY / OUTER_Y) * _dZ;
+    _cZ = COVER_FRONT_Z + (_cY / OUTER_Y) * (COVER_BACK_Z - COVER_FRONT_Z);
 
-    // Cut a slot perpendicular to the angled face, centred in X and face.
-    // Rotate a box so its Z-axis aligns with the face normal.
+    // Through-hole for active display area, perpendicular to face.
+    // rotate([-TILT_ANGLE, 0, 0]) aligns the cut's Z-axis with the face normal.
     translate([OUTER_X/2, _cY, _cZ])
-        rotate([-_tilt, 0, 0])               // tilt to match face angle
+        rotate([-TILT_ANGLE, 0, 0])
             translate([-LCD_ACT_X/2, -LCD_ACT_SL/2, -WALL - 1])
                 cube([LCD_ACT_X, LCD_ACT_SL, WALL + 2]);
 
-    // Shallow recess for full LCD PCB (around the active window)
+    // Snug recess for full LCD PCB (LCD_FIT_CLR per side → press fit into cover)
     translate([OUTER_X/2, _cY, _cZ])
-        rotate([-_tilt, 0, 0])
-            translate([-LCD_PCB_X/2 - CLR, -LCD_PCB_SL/2 - CLR, -LCD_T - CLR])
-                cube([LCD_PCB_X + 2*CLR, LCD_PCB_SL + 2*CLR, LCD_T + CLR + 0.1]);
+        rotate([-TILT_ANGLE, 0, 0])
+            translate([-LCD_PCB_X/2 - LCD_FIT_CLR,
+                       -LCD_PCB_SL/2 - LCD_FIT_CLR,
+                       -LCD_T - LCD_FIT_CLR])
+                cube([LCD_PCB_X + 2*LCD_FIT_CLR,
+                      LCD_PCB_SL + 2*LCD_FIT_CLR,
+                      LCD_T + LCD_FIT_CLR + 0.1]);
 
     // ── M3 screw holes (4 corners, enter from bottom of cover) ──
     for (bx = BOSS_XS, by = BOSS_YS) {
-        // Z height of cover bottom at this Y (bottom of cover is at Z=0 everywhere)
         translate([bx, by, -0.05])
             cylinder(d=M3_CLEAR, h=WALL + 0.1, $fn=16);
         // Countersink on bottom face
