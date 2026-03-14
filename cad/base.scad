@@ -1,5 +1,8 @@
 // ============================================================
-// OctoMount — base.scad  (2-piece redesign, rev 5)
+// OctoMount — base.scad  (2-piece redesign, rev 6)
+//
+// OUTER_X = 125.8 mm (widened — right wall at right edge of 145 mm back panel).
+// Right of RPi (X ≈ 96.8..122.8 mm) is the LM2596 buck converter zone (26 mm clear).
 //
 // The Base provides all enclosure walls plus the mounting bracket:
 //   • Left + right side walls — tapered to match cover tilt angle
@@ -59,12 +62,17 @@ module _base_solid() {
     translate([PLATE_X0, OUTER_Y - WALL, 0])
         cube([PLATE_W, WALL, PLATE_H]);                // mounting plate extension (same Y, wider)
 
-    // M2.5 RPi mounting bosses — h = _BH_C + by·sin θ  (see params.scad for derivation).
-    // Boss base Y is offset from hole world_y so the tilted tip lands on the PCB bare-bottom.
-    for (bx = BOSS_XS, by = BOSS_YS)
-        translate([bx, by, BASE_OUTER_Z])
+    // Front RPi bosses (BOSS_YS[0]) — cylinder posts from floor, perpendicular to RPi face.
+    for (bx = BOSS_XS)
+        translate([bx, BOSS_YS[0], BASE_OUTER_Z])
             rotate([TILT_ANGLE, 0, 0])
-                rpi_boss(_BH_C + by * sin(TILT_ANGLE));
+                rpi_boss(_BH_C + BOSS_YS[0] * sin(TILT_ANGLE));
+
+    // Back RPi bosses (BOSS_YS[1]) — cube blocks fused to back wall, top face at RPi mounting plane.
+    for (bx = BOSS_XS)
+        translate([bx, BOSS_YS[1], BASE_OUTER_Z])
+            rotate([TILT_ANGLE, 0, 0])
+                rpi_back_block(_BH_C + BOSS_YS[1] * sin(TILT_ANGLE), BOSS_YS[1]);
 }
 
 // ── Subtractive cuts ──────────────────────────────────────────
@@ -75,16 +83,27 @@ module _base_cuts() {
     translate([OUTER_X - 0.05, _usbc_yz - PORT_USBC_W/2, -0.05])
         cube([WALL + 0.1, PORT_USBC_W, PORT_USBC_H + 0.1]);
 
-    // ── Left wall: full-size SD slot (SD_H tall notch) ────────
+    // ── Left wall: full-size SD slot (SD_H tall notch, starts above floor slab) ────────
     _sd_cy = OUTER_Y / 2;
-    translate([-0.05, _sd_cy - SD_W/2, -0.05])
+    translate([-0.05, _sd_cy - SD_W/2, BASE_OUTER_Z])
         cube([WALL + 0.1, SD_W, SD_H + 0.1]);
 
     // ── M5 countersunk holes through back wall / mounting plate ──
+    // Counterbore opens on the INSIDE face (Y = OUTER_Y − WALL); screw head recessed from inside.
     for (h = [MOUNT_H1, MOUNT_H2])
-        translate([PLATE_X0 + h[0], OUTER_Y, h[1]])
-            rotate([90, 0, 0])
+        translate([PLATE_X0 + h[0], OUTER_Y - WALL, h[1]])
+            rotate([-90, 0, 0])
                 m5_thru(WALL);
+
+    // ── Back wall: USB-A cable routing slot ──────────────────────
+    // Left portion of main back wall (X ≈ −0.7..15 mm); Z = 24..30 mm.
+    translate([BKWALL_USB_X0 - 0.05, OUTER_Y - WALL - 0.05, BKWALL_USB_ZLO])
+        cube([BKWALL_USB_W + 0.1, WALL + 0.1, BKWALL_USB_ZHI - BKWALL_USB_ZLO]);
+
+    // ── Back wall: microSD extension cable routing slot ───────────
+    // Left zone of main back wall (X ≈ 19..28 mm); Z = 21..30 mm.
+    translate([BKWALL_SD_X0 - 0.05, OUTER_Y - WALL - 0.05, BKWALL_SD_ZLO])
+        cube([BKWALL_SD_W + 0.1, WALL + 0.1, BKWALL_SD_ZHI - BKWALL_SD_ZLO]);
 
     // M3 tap holes are already inside m3_boss() — no separate cut needed.
 }

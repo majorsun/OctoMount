@@ -83,7 +83,7 @@ module _cover_cuts() {
     // Depth: from 1 mm outside outer face to 1 mm past the panel front face
     // (inner face + CLR_ABOVE_RPI).  Panel protrudes outward through opening.
     _win_d = WALL / cos(TILT_ANGLE) + abs(CLR_ABOVE_RPI) + 1;
-    translate([OUTER_X/2, _lY, _lZ])
+    translate([WALL + RPI_X0 + RPI_X/2 + LCD_OFS_X, _lY, _lZ])
         rotate([TILT_ANGLE, 0, 0])
             translate([LCD_PANEL_OX  - (LCD_PANEL_X/2  + LCD_FIT_CLR),
                        LCD_PANEL_OSL - (LCD_PANEL_SL/2 + LCD_FIT_CLR),

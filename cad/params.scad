@@ -108,18 +108,21 @@ FAN_SIZE = 30.0;   // fan square side — TBD
 FAN_T    =  7.0;   // fan thickness  — TBD
 
 // ── Buck converter LM2596 ─────────────────────────────────────
-BUCK_X   = 23.0;   // PCB width in enclosure X direction — TBD
-BUCK_Y   = 48.0;   // PCB depth in enclosure Y direction — TBD
-BUCK_Z   = 14.0;   // PCB + component height in Z        — TBD
+BUCK_X   = 21.0;   // LM2596 PCB width in enclosure X direction
+BUCK_Y   = 43.0;   // LM2596 PCB depth in enclosure Y direction
+BUCK_Z   = 17.0;   // LM2596 PCB + component height in Z (including potentiometer)
 
 // ── Full-size SD slot (extension cable, left wall) ───────────
 SD_W = 32.0;   // slot opening width in Y — TBD
-SD_H =  4.5;   // slot opening height in Z — TBD
+SD_H =  8.0;   // slot opening height in Z — TBD
 SD_POCKET = 34.0;  // card insertion depth in X (+X direction)
 
 // ── Cavity footprint (shared by base slab and cover) ─────────
 // X: LCD PCB (98.6 mm) wider than RPi (85 mm) — LCD still drives INNER_X
-INNER_X = LCD_PCB_X + 2*CLR;              // = 100.6 mm
+// Enclosure widened so right wall aligns with right edge of 145 mm back panel.
+// PLATE_X0 is fixed ≈ -19.2 mm (left edge of back panel in enclosure coords).
+// OUTER_X = PLATE_X0 + 145 = 125.8 mm; INNER_X = OUTER_X − 2*WALL.
+INNER_X = (LCD_PCB_X + 2*CLR + 145.0 - 2*WALL) / 2;  // = 119.8 mm
 // Y: Driven by RPi tilt geometry, not LCD PCB flat depth.
 // After rotate([180+TILT_ANGLE,0,0]), RPi bare-bottom front edge reaches world_y:
 //   = WALL + RPI_Y0 + RPI_Y/2*(1+cos θ) + STOFF_H*sin θ ≈ 65.2 mm  (θ≈19°)
@@ -138,7 +141,7 @@ ASSEMBLY_DEPTH = STOFF_H;  // cover interior depth — TBD: extend by heatsink h
 
 // ── RPi position (centred in X, front-flush in Y) ─────────────
 // RPi centred in X (LCD also centred → they share X centre)
-RPI_X0 = (INNER_X - RPI_X) / 2;   // = (100.6 - 85) / 2 = 7.8 mm
+RPI_X0 = (LCD_PCB_X + 2*CLR - RPI_X) / 2;   // = 7.8 mm (fixed — keeps RPi position relative to left wall)
 RPI_Y0 = CLR;                      // Y offset of RPi front edge from inner front wall
 
 // ── Buck converter (in base wiring slab, beside RPi footprint) ─
@@ -162,17 +165,51 @@ LCD_FIT_CLR   = 0.5;     // per-side clearance for LCD PCB window
 echo(str("Assembly depth (perp. to face): ", ASSEMBLY_DEPTH, " mm"));
 echo(str("LCD tilt from horizontal: ", TILT_ANGLE, "°"));
 echo(str("Total outer height (back corner): ", BASE_OUTER_Z + COVER_BACK_Z, " mm"));
+echo(str("PLATE_X0 = ", PLATE_X0, " mm  OUTER_X = ", OUTER_X, " mm  INNER_X = ", INNER_X, " mm"));
 
 // ── Mounting bracket (plate + arm shelf) ─────────────────────
 PLATE_W   = 125.0;   // plate width  (20 mm narrower than control box; right side clear for bed screws)
 PLATE_H   =  40.0;   // plate height (= 4040 cross-section)
-PLATE_X0  = (OUTER_X - 145.0) / 2;  // plate left edge = left corner of 4040 beam face (fixed reference)
+PLATE_X0  = (LCD_PCB_X + 2*CLR + 2*WALL - 145.0) / 2;  // ≈ -19.2 mm (fixed — left edge of 145 mm back panel)
 ARM_L     =  15.0;   // cable gap: plate front → enclosure rear face
 ARM_THICK =   8.0;   // arm shelf Z thickness
 
 // M5 flat-head screws into 4040 beam end face
 MOUNT_H1  = [10.0, 30.0];   // top-left hole  [X, Z-from-plate-bottom]
 MOUNT_H2  = [30.0, 10.0];   // bottom-right hole
+
+// ── Back-wall cable pass-throughs ─────────────────────────────
+// Slots cut in the back wall to route cables from the Ender 3 control box
+// interior into the OctoMount enclosure.
+//
+// Positions derived from "Sheetmetal enclosure bottom.pdf" (face view, 90° CW):
+//
+//   Face-view direct mapping verified by M5 holes:
+//     X_offset from PLATE_X0 = old_x   (horizontal 0..30mm)
+//     Z_OctoMount             = 153 − old_y
+//     (10,123)→[X_off=10,Z=30]=MOUNT_H1 ✓   (30,143)→[X_off=30,Z=10]=MOUNT_H2 ✓
+//
+//   Applying 90° CW rotation to the diagram axes gives slot positions:
+//     new_x (X_offset) = old_y
+//     new_z            = 30 − old_x   (30 = max of the depth axis)
+//
+//   USB-A: old_y=18.5..34.5, old_x=0..6 → X_off=18.5..34.5, Z=24..30 mm
+//   SD:    old_y=38.3..47.3, old_x=0..9 → X_off=38.3..47.3, Z=21..30 mm
+//
+// X_enclosure = PLATE_X0 + X_offset  (PLATE_X0 ≈ −19.2 mm)
+//
+// USB-A cable slot — left portion of main back wall (straddles X=0)
+BKWALL_USB_X0  = PLATE_X0 + 18.5;   // ≈  −0.7 mm from enclosure left
+BKWALL_USB_W   = 16.0;              //  = 16.0 mm  (34.5 − 18.5)
+BKWALL_USB_ZLO = 24.0;             //  = 24.0 mm  (30 − 6)
+BKWALL_USB_ZHI = 30.0;             //  = 30.0 mm  (30 − 0)
+// microSD extension cable slot — left-centre of main back wall
+BKWALL_SD_X0   = PLATE_X0 + 38.3;   // ≈  19.1 mm from enclosure left
+BKWALL_SD_W    =  9.0;              //  =  9.0 mm  (47.3 − 38.3)
+BKWALL_SD_ZLO  = 21.0;             //  = 21.0 mm  (30 − 9)
+BKWALL_SD_ZHI  = 30.0;             //  = 30.0 mm  (30 − 0)
+echo(str("USB  slot X=[", BKWALL_USB_X0, " .. ", BKWALL_USB_X0+BKWALL_USB_W, "]  Z=[", BKWALL_USB_ZLO, " .. ", BKWALL_USB_ZHI, "]"));
+echo(str("SD   slot X=[", BKWALL_SD_X0,  " .. ", BKWALL_SD_X0+BKWALL_SD_W,   "]  Z=[", BKWALL_SD_ZLO,  " .. ", BKWALL_SD_ZHI,  "]"));
 
 // ── RPi mounting boss positions on base (XY aligned with RPi M2.5 holes) ──
 // The boss is rotate([TILT_ANGLE,0,0]) → its tip shifts -Y by h·sin(θ) relative to base.
@@ -183,10 +220,10 @@ MOUNT_H2  = [30.0, 10.0];   // bottom-right hole
 //   boss height h    = _BH_C + by·sin θ
 //   (derived from requiring boss tip Y = by − h·sin θ = hole_world_y)
 //
-// _BH_C = height constant: COVER_FRONT_Z·cos θ − WALL − STOFF_H
-// (moving perp. to tilted face by d shifts world Z by d/cos θ, not d·cos θ)
+// _BH_C = height constant: COVER_FRONT_Z·cos θ − WALL − STOFF_H − RPI_PCB_T
+// RPI_PCB_T subtracted so boss tips land on the PCB bare-bottom face (not the component-top face).
 // 180° flip → small-dy RPi holes land at large world_y (near enclosure back wall).
-_BH_C = COVER_FRONT_Z * cos(TILT_ANGLE) - WALL - STOFF_H;
+_BH_C = COVER_FRONT_Z * cos(TILT_ANGLE) - WALL - STOFF_H - RPI_PCB_T;
 _RY_C = WALL + RPI_Y0 + RPI_Y/2;   // RPi Y-centre in enclosure
 
 BOSS_XS = [WALL + RPI_X0 + RPI_HOLE_OX,
@@ -222,6 +259,27 @@ module rpi_boss(h = STOFF_H) {
         cylinder(r=M25_BOSS_R, h=h, $fn=32);
         translate([0, 0, h - _hd])
             cylinder(d=M25_CLEAR, h=_hd+0.1, $fn=16);
+    }
+}
+
+// M2.5 back-wall block: cube-shaped support from back inner wall, top face parallel to RPi face.
+// Built in the same tilted local frame as rpi_boss (rotate([TILT_ANGLE,0,0]) already applied).
+//   Local +Y → world (0, cos θ, sin θ) → toward back wall.
+//   Block spans local Y ∈ [−M25_BOSS_R,  DY/cosθ + WALL]
+//              local Z ∈ [0, h]          (floor to RPi mounting plane)
+//   M2.5 hole at local (0, 0, h) — same world position as equivalent floor boss tip.
+// by = world Y of boss base (= BOSS_YS[1]);  h = boss height in tilted frame.
+module rpi_back_block(h, by) {
+    _extra = M25_BOSS_R;                                               // −Y overhang for hole clearance
+    _D     = (OUTER_Y - WALL - by) / cos(TILT_ANGLE) + WALL + _extra; // total local-Y span
+    _t     = max(WALL, M25_BOSS_DEPTH);                                // slab thickness (local Z)
+    difference() {
+        // Slab only at the top — space below (local Z < h−_t) is left open
+        translate([-M25_BOSS_R, -_extra, h - _t])
+            cube([2*M25_BOSS_R, _D, _t]);
+        // M2.5 blind hole from top face (local Z = h, centred at XY = 0)
+        translate([0, 0, h - _t])
+            cylinder(d=M25_CLEAR, h=_t + 0.1, $fn=16);
     }
 }
 
