@@ -118,11 +118,9 @@ SD_H =  8.0;   // slot opening height in Z — TBD
 SD_POCKET = 34.0;  // card insertion depth in X (+X direction)
 
 // ── Cavity footprint (shared by base slab and cover) ─────────
-// X: LCD PCB (98.6 mm) wider than RPi (85 mm) — LCD still drives INNER_X
-// Enclosure widened so right wall aligns with right edge of 145 mm back panel.
-// PLATE_X0 is fixed ≈ -19.2 mm (left edge of back panel in enclosure coords).
-// OUTER_X = PLATE_X0 + 145 = 125.8 mm; INNER_X = OUTER_X − 2*WALL.
-INNER_X = (LCD_PCB_X + 2*CLR + 145.0 - 2*WALL) / 2;  // = 119.8 mm
+// Left wall aligns with panel left edge (PLATE_X0 = 0). OUTER_X = 145 mm (full panel width).
+// Space right of RPi: INNER_X − (RPI_X0+RPI_X) = 139 − 92.8 = 46.2 mm — LM2596 fits flat.
+INNER_X = 145.0 - 2*WALL;  // = 139 mm
 // Y: Driven by RPi tilt geometry, not LCD PCB flat depth.
 // After rotate([180+TILT_ANGLE,0,0]), RPi bare-bottom front edge reaches world_y:
 //   = WALL + RPI_Y0 + RPI_Y/2*(1+cos θ) + STOFF_H*sin θ ≈ 65.2 mm  (θ≈19°)
@@ -149,7 +147,7 @@ BUCK_X0 = RPI_X0 + RPI_X + CLR;   // X start of buck  — TBD fit check
 BUCK_Y0 = CLR;
 
 // ── Outer dimensions ──────────────────────────────────────────
-OUTER_X      = INNER_X + 2*WALL;   // = 106.6 mm
+OUTER_X      = INNER_X + 2*WALL;   // = 145 mm
 OUTER_Y      = INNER_Y + 2*WALL;   // =  93 mm
 BASE_OUTER_Z = 4.0;                // thin floor slab — 4 mm is enough
 
@@ -170,7 +168,7 @@ echo(str("PLATE_X0 = ", PLATE_X0, " mm  OUTER_X = ", OUTER_X, " mm  INNER_X = ",
 // ── Mounting bracket (plate + arm shelf) ─────────────────────
 PLATE_W   = 125.0;   // plate width  (20 mm narrower than control box; right side clear for bed screws)
 PLATE_H   =  40.0;   // plate height (= 4040 cross-section)
-PLATE_X0  = (LCD_PCB_X + 2*CLR + 2*WALL - 145.0) / 2;  // ≈ -19.2 mm (fixed — left edge of 145 mm back panel)
+PLATE_X0  = 0.0;   // left wall aligns with panel left edge (leftmost point of assembly)
 ARM_L     =  15.0;   // cable gap: plate front → enclosure rear face
 ARM_THICK =   8.0;   // arm shelf Z thickness
 
@@ -196,15 +194,15 @@ MOUNT_H2  = [30.0, 10.0];   // bottom-right hole
 //   USB-A: old_y=18.5..34.5, old_x=0..6 → X_off=18.5..34.5, Z=24..30 mm
 //   SD:    old_y=38.3..47.3, old_x=0..9 → X_off=38.3..47.3, Z=21..30 mm
 //
-// X_enclosure = PLATE_X0 + X_offset  (PLATE_X0 ≈ −19.2 mm)
+// X_enclosure = PLATE_X0 + X_offset  (PLATE_X0 = 0 — left wall at panel left edge)
 //
-// USB-A cable slot — left portion of main back wall (straddles X=0)
-BKWALL_USB_X0  = PLATE_X0 + 18.5;   // ≈  −0.7 mm from enclosure left
+// USB-A cable slot — left zone of main back wall
+BKWALL_USB_X0  = PLATE_X0 + 18.5;   // = 18.5 mm from enclosure left
 BKWALL_USB_W   = 16.0;              //  = 16.0 mm  (34.5 − 18.5)
 BKWALL_USB_ZLO = 24.0;             //  = 24.0 mm  (30 − 6)
 BKWALL_USB_ZHI = 30.0;             //  = 30.0 mm  (30 − 0)
-// microSD extension cable slot — left-centre of main back wall
-BKWALL_SD_X0   = PLATE_X0 + 38.3;   // ≈  19.1 mm from enclosure left
+// microSD extension cable slot — left zone of main back wall
+BKWALL_SD_X0   = PLATE_X0 + 38.3;   // = 38.3 mm from enclosure left
 BKWALL_SD_W    =  9.0;              //  =  9.0 mm  (47.3 − 38.3)
 BKWALL_SD_ZLO  = 21.0;             //  = 21.0 mm  (30 − 9)
 BKWALL_SD_ZHI  = 30.0;             //  = 30.0 mm  (30 − 0)

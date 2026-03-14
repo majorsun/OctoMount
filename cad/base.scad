@@ -1,8 +1,8 @@
 // ============================================================
 // OctoMount — base.scad  (2-piece redesign, rev 6)
 //
-// OUTER_X = 125.8 mm (widened — right wall at right edge of 145 mm back panel).
-// Right of RPi (X ≈ 96.8..122.8 mm) is the LM2596 buck converter zone (26 mm clear).
+// OUTER_X = 145 mm (left wall at panel left edge; right wall at panel right edge).
+// Right of RPi (X ≈ 96.8..142 mm) is the LM2596 buck converter zone (45 mm clear).
 //
 // The Base provides all enclosure walls plus the mounting bracket:
 //   • Left + right side walls — tapered to match cover tilt angle
@@ -96,12 +96,12 @@ module _base_cuts() {
                 m5_thru(WALL);
 
     // ── Back wall: USB-A cable routing slot ──────────────────────
-    // Left portion of main back wall (X ≈ −0.7..15 mm); Z = 24..30 mm.
+    // Left zone of main back wall (X ≈ 18.5..34.5 mm); Z = 24..30 mm.
     translate([BKWALL_USB_X0 - 0.05, OUTER_Y - WALL - 0.05, BKWALL_USB_ZLO])
         cube([BKWALL_USB_W + 0.1, WALL + 0.1, BKWALL_USB_ZHI - BKWALL_USB_ZLO]);
 
     // ── Back wall: microSD extension cable routing slot ───────────
-    // Left zone of main back wall (X ≈ 19..28 mm); Z = 21..30 mm.
+    // Left zone of main back wall (X ≈ 38.3..47.3 mm); Z = 21..30 mm.
     translate([BKWALL_SD_X0 - 0.05, OUTER_Y - WALL - 0.05, BKWALL_SD_ZLO])
         cube([BKWALL_SD_W + 0.1, WALL + 0.1, BKWALL_SD_ZHI - BKWALL_SD_ZLO]);
 
