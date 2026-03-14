@@ -52,14 +52,17 @@ if (SHOW_BASE)
 
 // ── Ghost: LM2596 buck converter (right of RPi, on base floor) ─
 // STL bbox: X(-2.418..48.466) Y(22.010..37.796) Z(26.226..50.512)
-// No rotation: PCB lies flat in XY plane; long axis (50.9 mm) runs in enclosure X.
-// Translate: X_min(-2.418) → WALL+BUCK_X0; Y_min(22.010) → WALL+BUCK_Y0; Z_min(26.226) → BASE_OUTER_Z
+// rotate([0,0,90]): long axis (50.9mm STL-X) → enclosure Y (along right side wall).
+// After rotation bbox: X(-37.796..-22.010) Y(-2.418..48.466) Z(26.226..50.512)
+// Translate: rotated X_min(-37.796) → WALL+BUCK_X0;  Y_min(-2.418) → WALL+BUCK_Y0
+//            Z_min(26.226) → BASE_OUTER_Z + BUCK_BOSS_H  (PCB rests on top of bosses)
 if (SHOW_BUCK)
     color(BUCK_COL)
-        translate([WALL + BUCK_X0 + 2.418,
-                   WALL + BUCK_Y0 - 22.010,
-                   BASE_OUTER_Z - 26.226])
-            import("../reference/6811d70143b4d50b11a59159.stl", convexity=10);
+        translate([WALL + BUCK_X0 + 37.796,
+                   WALL + BUCK_Y0 + 2.418,
+                   BASE_OUTER_Z + BUCK_BOSS_H - 26.226])
+            rotate([0, 0, 90])
+                import("../reference/6811d70143b4d50b11a59159.stl", convexity=10);
 
 // ── Debug: red spheres at boss-tip world positions ────────────
 // Uses the exact same transform chain as base.scad bosses → guaranteed correct.
