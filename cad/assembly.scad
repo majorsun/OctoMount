@@ -53,16 +53,20 @@ if (SHOW_BASE)
 // ── Ghost: LM2596 buck converter (right of RPi, on base floor) ─
 // STL bbox: X(-2.418..48.466) Y(22.010..37.796) Z(26.226..50.512)
 // rotate([0,0,90]): long axis (50.9mm STL-X) → enclosure Y (along right side wall).
-// After rotation bbox: X(-37.796..-22.010) Y(-2.418..48.466) Z(26.226..50.512)
-// Translate: rotated X_min(-37.796) → WALL+BUCK_X0;  Y_min(-2.418) → WALL+BUCK_Y0
-//            Z_min(26.226) → BASE_OUTER_Z + BUCK_BOSS_H  (PCB rests on top of bosses)
+// rotate([0,90,0]):  component height (STL-Z, 24.3mm) → world +X (toward right wall);
+//                   PCB short width  (STL-Y, 15.8mm) → world Z  (height = 15.8mm).
+// Mapping: STL(x,y,z) → world(z+TX, x+TY, y+TZ)
+//   TX = OUTER_X−WALL−50.512 = 91.5   TY = WALL+BUCK_Y0+2.418 = 6.4
+//   TZ = BASE_OUTER_Z−22.010 = −18.0
+// Result: component tops lie against right wall; floor = PCB solder side edge; height = 15.8 mm.
 if (SHOW_BUCK)
     color(BUCK_COL)
-        translate([WALL + BUCK_X0 + 37.796,
+        translate([OUTER_X - WALL - 50.512,
                    WALL + BUCK_Y0 + 2.418,
-                   BASE_OUTER_Z + BUCK_BOSS_H - 26.226])
-            rotate([0, 0, 90])
-                import("../reference/6811d70143b4d50b11a59159.stl", convexity=10);
+                   BASE_OUTER_Z - 22.010])
+            rotate([0, 90, 0])
+                rotate([0, 0, 90])
+                    import("../reference/6811d70143b4d50b11a59159.stl", convexity=10);
 
 // ── Debug: red spheres at boss-tip world positions ────────────
 // Uses the exact same transform chain as base.scad bosses → guaranteed correct.

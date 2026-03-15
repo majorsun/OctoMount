@@ -74,10 +74,12 @@ module _base_solid() {
             rotate([TILT_ANGLE, 0, 0])
                 rpi_back_block(_BH_C + BOSS_YS[1] * sin(TILT_ANGLE), BOSS_YS[1]);
 
-    // Buck converter M3 mounting bosses — rise from floor to PCB underside.
+    // Buck converter M3 bosses — horizontal posts from right side wall inner face.
+    // Boss points in −X (inward); tapped end at PCB mounting hole; screw from interior.
     for (by = [BUCK_BOSS_Y1, BUCK_BOSS_Y2])
-        translate([BUCK_BOSS_X, by, BASE_OUTER_Z])
-            m3_boss(BUCK_BOSS_H);
+        translate([OUTER_X - WALL, by, BUCK_BOSS_Z])
+            rotate([0, -90, 0])
+                m3_boss(BUCK_BOSS_L);
 }
 
 // ── Subtractive cuts ──────────────────────────────────────────

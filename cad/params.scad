@@ -145,14 +145,17 @@ RPI_Y0 = CLR;                      // Y offset of RPi front edge from inner fron
 // ── Buck converter (in base wiring slab, beside RPi footprint) ─
 BUCK_X0 = RPI_X0 + RPI_X + CLR;   // X start of buck  — TBD fit check
 BUCK_Y0 = CLR;
-// M3 mounting boss positions — derived from STL hole analysis.
-// Orientation: rotate([0,0,90]) so long axis (50.9mm STL-X) runs in enclosure Y (along side wall).
-// STL holes at approx (stl_x=4.0, stl_y=23.0) and (stl_x=36.0, stl_y=23.0).
-// Mapping: world_x = -stl_y + (WALL+BUCK_X0+37.796),  world_y = stl_x + (WALL+BUCK_Y0+2.418)
-BUCK_BOSS_H  = 3.0;   // M3 boss height above base floor (lifts PCB for airflow)
-BUCK_BOSS_X  = WALL + BUCK_X0 + 37.796 - 23.0;   // ≈ 111.6 mm — same for both holes
-BUCK_BOSS_Y1 = WALL + BUCK_Y0 +  2.418 +  4.0;   // ≈  10.4 mm — near-front hole
-BUCK_BOSS_Y2 = WALL + BUCK_Y0 +  2.418 + 36.0;   // ≈  42.4 mm — near-back hole
+// M3 mounting bosses — horizontal posts from right side wall inner face.
+// Orientation: rotate([0,90,0])∘rotate([0,0,90]); STL(x,y,z)→world(z+TX,x+TY,y+TZ).
+// PCB mounting holes (STL Z axis) now point in world X; bosses extend inward from right wall.
+// Screw from interior: through PCB clearance hole → into boss tapped end at PCB centre.
+//   world_y of holes: WALL+BUCK_Y0+2.418+stl_x  (stl_x=4.0 and 36.0)
+//   world_z of holes: BASE_OUTER_Z + (23.0−22.010) ≈ 5 mm
+//   boss length:      STL_z_max − (STL_z_min+0.8) = 50.512−27.0 = 23.5 mm
+BUCK_BOSS_Z  = BASE_OUTER_Z + 23.0 - 22.010;    // ≈  5.0 mm — boss centre height
+BUCK_BOSS_L  = 23.5;                              //  23.5 mm — boss length from wall to PCB hole
+BUCK_BOSS_Y1 = WALL + BUCK_Y0 +  2.418 +  4.0;  // ≈ 10.4 mm — near-front hole
+BUCK_BOSS_Y2 = WALL + BUCK_Y0 +  2.418 + 36.0;  // ≈ 42.4 mm — near-back hole
 
 // ── Outer dimensions ──────────────────────────────────────────
 OUTER_X      = INNER_X + 2*WALL;   // = 145 mm
