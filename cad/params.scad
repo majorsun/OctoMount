@@ -120,7 +120,7 @@ SD_POCKET = 34.0;  // card insertion depth in X (+X direction)
 SD_SCREW_D    = 2.0;   // screw hole diameter
 SD_SCREW_SPAN = 34.1;  // centre-to-centre Y distance between the two holes
 SD_SCREW_X    = 17.8;  // hole centre X from outside left wall surface
-SD_BACK_CLR   = 8.0;   // back screw hole distance from inner back wall surface
+SD_BACK_CLR   = 3.0;   // back screw hole distance from inner back wall surface
 
 // ── Cavity footprint (shared by base slab and cover) ─────────
 // Left wall aligns with panel left edge (PLATE_X0 = 0). OUTER_X = 145 mm (full panel width).
