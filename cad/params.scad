@@ -179,6 +179,11 @@ COVER_BACK_Z  = MAX_OUTER_Z - BASE_OUTER_Z;  // = 48 mm
 TILT_ANGLE    = atan((COVER_BACK_Z - COVER_FRONT_Z) / OUTER_Y);  // ≈ 10.4°
 LCD_FIT_CLR   = 0.5;     // per-side clearance for LCD PCB window
 
+// Back wall height: shortened so the cover's inner face clears the top, plus an extra
+// 3 mm so the hinge sockets (centred at BHINGE_WZ) sit fully inside the side walls
+// with enough material above them.
+BKWALL_H = MAX_OUTER_Z - WALL / cos(TILT_ANGLE) - 3;  // ≈ 45.8 mm
+
 echo(str("Assembly depth (perp. to face): ", ASSEMBLY_DEPTH, " mm"));
 echo(str("LCD tilt from horizontal: ", TILT_ANGLE, "°"));
 echo(str("Total outer height (back corner): ", BASE_OUTER_Z + COVER_BACK_Z, " mm"));
@@ -194,6 +199,22 @@ ARM_THICK =   8.0;   // arm shelf Z thickness
 // M5 flat-head screws into 4040 beam end face
 MOUNT_H1  = [10.0, 30.0];   // top-left hole  [X, Z-from-plate-bottom]
 MOUNT_H2  = [30.0, 10.0];   // bottom-right hole
+
+// ── Ball hinge ────────────────────────────────────────────────
+// The cover fits BETWEEN the base side walls (X = WALL..OUTER_X−WALL).
+// Each ball centre sits exactly on the cover's side face (= inner face of side wall):
+//   Left  X = WALL          Right  X = OUTER_X − WALL
+// This makes each protrusion a perfect hemisphere: half anchored in the cover body,
+// half protruding into the side-wall socket.  The socket is a matching hemisphere
+// recessed into the inner face of each base side wall.
+// The X-parallel axis through both centres is the hinge axle — cover flips open.
+BHINGE_R   = 1.4;    // ball/socket radius (diameter 2.8 mm ≤ WALL 3 mm)
+BHINGE_CLR = 0.1;    // socket radial clearance (tight friction fit; reduce to 0 for press-fit)
+
+BHINGE_Y       = OUTER_Y - WALL/2;  // Y: centred in back-wall zone (= 69.5 mm)
+BHINGE_WZ      = 48.5;              // world Z of centres — moved down so socket top (50 mm)
+                                    // clears side wall top (~51.5 mm) with ~1.5 mm margin
+BHINGE_EDGE_R  = 2.0;               // fillet radius on cover back-top edge (between hinges)
 
 // ── Back-wall cable pass-throughs ─────────────────────────────
 // Window positions are anchored to the two M5 mounting screws (MOUNT_H1, MOUNT_H2).

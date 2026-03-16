@@ -1,11 +1,14 @@
 // ============================================================
-// OctoMount — cover.scad  (2-piece redesign, rev 6)
+// OctoMount — cover.scad  (2-piece redesign, rev 7)
 //
-// The Cover now consists of only two elements:
-//   1. Front wall  — Y = 0..WALL, full width X, height = COVER_FRONT_Z
-//   2. Angled top slab — full width × full depth, WALL thick ⟂ to face
+// The Cover fits BETWEEN the base side walls (X = WALL..OUTER_X−WALL = INNER_X wide).
+// Its back edge sits over the base back wall, not flush with the outside.
 //
-// Side walls and back wall have moved to base.scad (rev 4).
+//   1. Front wall  — X = WALL..OUTER_X−WALL, Y = 0..WALL, height = COVER_FRONT_Z
+//   2. Angled top slab — same X span, full Y depth, WALL thick ⟂ to face
+//   3. Two ball stubs  — protrude from each side face into the base side-wall sockets
+//
+// Side walls and back wall are on the base (rev 4+).
 //
 // TWO DESIGN CONDITIONS (all met in this file):
 //
@@ -37,29 +40,42 @@ module cover() {
         union() {
             _cover_top_slab();
             _cover_front_wall();
+            _cover_hinge_balls();
         }
         _cover_cuts();
     }
 }
 
-// ── Angled top slab (full width, WALL thick perpendicular to face) ─
+// ── Angled top slab (INNER_X wide, fits between side walls) ──
 // Hull between front and back thin strips gives a parallelogram slab
 // whose thickness measured perpendicular to the surface is exactly WALL.
+//   X span: WALL .. OUTER_X−WALL  (= INNER_X, between the side walls)
 //   Front edge: outer face at Z = COVER_FRONT_Z, inner face at COVER_FRONT_Z − _wz
 //   Back edge:  outer face at Z = COVER_BACK_Z,  inner face at COVER_BACK_Z  − _wz
 module _cover_top_slab() {
     _wz = WALL / cos(TILT_ANGLE);
     hull() {
-        translate([0, 0, COVER_FRONT_Z - _wz])
-            cube([OUTER_X, 0.01, _wz]);
-        translate([0, OUTER_Y - 0.01, COVER_BACK_Z - _wz])
-            cube([OUTER_X, 0.01, _wz]);
+        translate([WALL, 0, COVER_FRONT_Z - _wz])
+            cube([INNER_X, 0.01, _wz]);
+        translate([WALL, OUTER_Y - 0.01, COVER_BACK_Z - _wz])
+            cube([INNER_X, 0.01, _wz]);
     }
 }
 
-// ── Front wall (short lip closing the enclosure front face) ───
+// ── Front wall (lip closing the enclosure front face, between side walls) ───
 module _cover_front_wall() {
-    cube([OUTER_X, WALL, COVER_FRONT_Z]);
+    translate([WALL, 0, 0])
+        cube([INNER_X, WALL, COVER_FRONT_Z]);
+}
+
+// ── Ball-hinge stubs (exact half-spheres on the cover side faces) ──
+// Ball centre lies exactly on the cover's side face (= inner face of base side wall).
+// The sphere is therefore half anchored in the cover slab and half protruding outward
+// as the hinge peg.  Hinge axis = X-parallel line through both centres.
+module _cover_hinge_balls() {
+    _bz = BHINGE_WZ - BASE_OUTER_Z;   // cover-local Z of ball centres (= 46 mm)
+    translate([WALL,          BHINGE_Y, _bz])  sphere(r=BHINGE_R, $fn=32);  // left
+    translate([OUTER_X-WALL,  BHINGE_Y, _bz])  sphere(r=BHINGE_R, $fn=32);  // right
 }
 
 // ── Subtractive cuts ──────────────────────────────────────────
@@ -82,6 +98,13 @@ module _cover_cuts() {
     //
     // Depth: from 1 mm outside outer face to 1 mm past the panel front face
     // (inner face + CLR_ABOVE_RPI).  Panel protrudes outward through opening.
+    // ── Back-top edge fillet (between the two ball hinges) ──────
+    // Cylinder along X at the outer back-top corner removes the sharp edge so the
+    // cover sweeps clear of the side walls and back wall as it flips open.
+    translate([WALL, OUTER_Y, COVER_BACK_Z])
+        rotate([0, 90, 0])
+            cylinder(r = BHINGE_EDGE_R, h = INNER_X, $fn=32);
+
     _win_d = WALL / cos(TILT_ANGLE) + abs(CLR_ABOVE_RPI) + 1;
     translate([WALL + RPI_X0 + RPI_X/2 + LCD_OFS_X, _lY, _lZ])
         rotate([TILT_ANGLE, 0, 0])
