@@ -74,10 +74,10 @@ module _base_solid() {
             rotate([TILT_ANGLE, 0, 0])
                 rpi_back_block(_BH_C + BOSS_YS[1] * sin(TILT_ANGLE), BOSS_YS[1]);
 
-    // Buck converter M3 floor bosses — vertical posts from base slab.
+    // Buck converter M3 floor bosses — 4-post pattern, vertical from base slab.
     // PCB rests on boss tops; screw from above through PCB into tapped boss.
-    for (by = [BUCK_FLOOR_Y1, BUCK_FLOOR_Y2])
-        translate([BUCK_FLOOR_X, by, BASE_OUTER_Z])
+    for (bx = [BUCK_FLOOR_X1, BUCK_FLOOR_X2], by = [BUCK_FLOOR_Y1, BUCK_FLOOR_Y2])
+        translate([bx, by, BASE_OUTER_Z])
             m3_boss(BUCK_FLOOR_H);
 }
 

@@ -147,14 +147,16 @@ BUCK_X0 = RPI_X0 + RPI_X + CLR;   // X start of buck  — TBD fit check
 BUCK_Y0 = CLR;
 // M3 floor bosses — vertical posts from base slab; PCB mounting holes are STL Y-axis.
 // Orientation: rotate([0,90,0])∘rotate([0,0,90]); STL(x,y,z)→world(z+TX, x+TY, y+TZ).
-// PCB lies flat in world XY (normal = world Z).  Hole positions from STL analysis:
-//   STL Y-axis holes at (STL_x=-0.2, STL_z=28.1) and (STL_x=46.2, STL_z=28.1).
+// PCB lies flat in world XY (normal = world Z).  4 hole positions from STL analysis:
+//   (STL_x≈0,    STL_z≈28.0) and (STL_x≈0,    STL_z≈48.7) — front pair
+//   (STL_x≈46.4, STL_z≈28.0) and (STL_x≈46.4, STL_z≈48.7) — back  pair
 // PCB rests on boss tops at world Z = BASE_OUTER_Z + BUCK_FLOOR_H.
 BUCK_WALL_GAP = 2.0;   // clearance from right wall inner face to component tops
 BUCK_FLOOR_H  = 4.0;   // floor boss height — PCB rests at BASE_OUTER_Z + BUCK_FLOOR_H
-BUCK_FLOOR_X  = INNER_X + WALL - BUCK_WALL_GAP - (50.512 - 28.1);  // ≈ 117.6 mm
-BUCK_FLOOR_Y1 = WALL + BUCK_Y0 + 2.418 - 0.2;   // ≈  6.2 mm (front hole)
-BUCK_FLOOR_Y2 = WALL + BUCK_Y0 + 2.418 + 46.2;  // ≈ 52.6 mm (back  hole)
+BUCK_FLOOR_X1 = INNER_X + WALL - BUCK_WALL_GAP - (50.512 - 28.0);  // ≈ 117.5 mm (solder side)
+BUCK_FLOOR_X2 = INNER_X + WALL - BUCK_WALL_GAP - (50.512 - 48.7);  // ≈ 138.2 mm (component side)
+BUCK_FLOOR_Y1 = WALL + BUCK_Y0 + 2.418;          // ≈  6.4 mm (front pair, STL_x≈0)
+BUCK_FLOOR_Y2 = WALL + BUCK_Y0 + 2.418 + 46.44;  // ≈ 52.9 mm (back  pair, STL_x≈46.4)
 
 // ── Outer dimensions ──────────────────────────────────────────
 OUTER_X      = INNER_X + 2*WALL;   // = 145 mm

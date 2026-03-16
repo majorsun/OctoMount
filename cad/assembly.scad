@@ -58,7 +58,7 @@ if (SHOW_BASE)
 // Mapping: STL(x,y,z) → world(z+TX, x+TY, y+TZ)
 //   TX = OUTER_X−WALL−BUCK_WALL_GAP−50.512 = 89.5   TY = WALL+BUCK_Y0+2.418 = 6.4
 //   TZ = BASE_OUTER_Z+BUCK_FLOOR_H−22.010 = −14.0
-// Result: 2mm gap from right wall; PCB solder face at BASE_OUTER_Z+BUCK_FLOOR_H.
+// Result: 2mm gap from right wall; PCB solder face at BASE_OUTER_Z+BUCK_FLOOR_H; 4 floor bosses.
 if (SHOW_BUCK)
     color(BUCK_COL)
         translate([OUTER_X - WALL - BUCK_WALL_GAP - 50.512,
