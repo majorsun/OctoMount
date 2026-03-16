@@ -41,6 +41,7 @@ module cover() {
             _cover_top_slab();
             _cover_front_wall();
             _cover_hinge_balls();
+            _cover_back_round();
         }
         _cover_cuts();
     }
@@ -84,6 +85,17 @@ module _cover_hinge_balls() {
             cylinder(r=BHINGE_R, h=INNER_X, $fn=32);
 }
 
+// ── Convex round on outer-top-back edge ─────────────────────────────────────
+// The corner at (Y≈OUTER_Y, Z=COVER_BACK_Z) clips the base back wall past ~120° open.
+// Convex (outward-bulging) cylinder: centre inset CORNER_R from both faces,
+// tangent to the top face (Z=COVER_BACK_Z) and back face (Y=OUTER_Y).
+// The square corner region is removed in _cover_cuts() and replaced by this curve.
+module _cover_back_round() {
+    translate([WALL, OUTER_Y - CORNER_R, COVER_BACK_Z - CORNER_R])
+        rotate([0, 90, 0])
+            cylinder(r=CORNER_R, h=INNER_X, $fn=32);
+}
+
 // ── Subtractive cuts ──────────────────────────────────────────
 module _cover_cuts() {
     // ── Rotation-clearance fillets ───────────────────────────────
@@ -92,11 +104,10 @@ module _cover_cuts() {
     translate([WALL, 0, COVER_FRONT_Z - WALL/cos(TILT_ANGLE)])
         rotate([0, 90, 0])
             cylinder(r=CORNER_R, h=INNER_X, $fn=32);
-    // Outer-top-back edge: the sharp corner at (Y=OUTER_Y, Z=COVER_BACK_Z).
-    // Past ~120° open this corner arcs down and clips the top of the base back wall.
-    translate([WALL, OUTER_Y, COVER_BACK_Z])
-        rotate([0, 90, 0])
-            cylinder(r=CORNER_R, h=INNER_X, $fn=32);
+    // Outer-top-back edge: remove the square corner so the convex round (in union)
+    // is the only material in that region.  Size = CORNER_R × CORNER_R, full X span.
+    translate([WALL - 0.01, OUTER_Y - CORNER_R, COVER_BACK_Z - CORNER_R])
+        cube([INNER_X + 0.02, CORNER_R + 0.01, CORNER_R + 0.01]);
 
     // LCD centre in enclosure XY — derived from RPi position + GPIO coupling
     _lY = WALL + RPI_Y0 + RPI_Y/2 + LCD_OFS_Y;   // ≈ 60 mm
