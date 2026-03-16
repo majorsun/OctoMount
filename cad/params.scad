@@ -221,6 +221,14 @@ BKWALL_WIN_ZHI = PLATE_H;        // = 40 mm  (top of mounting plate = depth 0 in
 BKWALL_WIN_ZLO = PLATE_H - 9.0;  // = 31 mm  (9 mm window height, just above MOUNT_H1 at Z 30)
 echo(str("Cable window X=[", BKWALL_WIN_X0, " .. ", BKWALL_WIN_X0+BKWALL_WIN_W, "]  Z=[", BKWALL_WIN_ZLO, " .. ", BKWALL_WIN_ZHI, "]"));
 
+// Second back-wall window: 15×15 mm, lower-left area.
+// Left edge = 10 mm right of MOUNT_H2 countersink right edge (MOUNT_H2[0] + M5_CS_D/2 + 10).
+// Bottom = exterior floor surface (Z = 0).
+BKWALL_WIN2_X0  = MOUNT_H2[0] + M5_CS_D/2 + 10.0;  // = 44.75 mm
+BKWALL_WIN2_W   = 15.0;
+BKWALL_WIN2_ZLO = 0.0;
+BKWALL_WIN2_ZHI = 15.0;
+
 // ── RPi mounting boss positions on base (XY aligned with RPi M2.5 holes) ──
 // The boss is rotate([TILT_ANGLE,0,0]) → its tip shifts -Y by h·sin(θ) relative to base.
 // So boss BASE must be placed at a larger Y than the target hole world_y:
