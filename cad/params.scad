@@ -145,17 +145,16 @@ RPI_Y0 = CLR;                      // Y offset of RPi front edge from inner fron
 // ── Buck converter (in base wiring slab, beside RPi footprint) ─
 BUCK_X0 = RPI_X0 + RPI_X + CLR;   // X start of buck  — TBD fit check
 BUCK_Y0 = CLR;
-// M3 mounting bosses — horizontal posts from right side wall inner face.
-// Orientation: rotate([0,90,0])∘rotate([0,0,90]); STL(x,y,z)→world(z+TX,x+TY,y+TZ).
-// PCB mounting holes (STL Z axis) now point in world X; bosses extend inward from right wall.
-// Screw from interior: through PCB clearance hole → into boss tapped end at PCB centre.
-//   world_y of holes: WALL+BUCK_Y0+2.418+stl_x  (stl_x=4.0 and 36.0)
-//   world_z of holes: BASE_OUTER_Z + (23.0−22.010) ≈ 5 mm
-//   boss length:      STL_z_max − (STL_z_min+0.8) = 50.512−27.0 = 23.5 mm
-BUCK_BOSS_Z  = BASE_OUTER_Z + 23.0 - 22.010;    // ≈  5.0 mm — boss centre height
-BUCK_BOSS_L  = 23.5;                              //  23.5 mm — boss length from wall to PCB hole
-BUCK_BOSS_Y1 = WALL + BUCK_Y0 +  2.418 +  4.0;  // ≈ 10.4 mm — near-front hole
-BUCK_BOSS_Y2 = WALL + BUCK_Y0 +  2.418 + 36.0;  // ≈ 42.4 mm — near-back hole
+// M3 floor bosses — vertical posts from base slab; PCB mounting holes are STL Y-axis.
+// Orientation: rotate([0,90,0])∘rotate([0,0,90]); STL(x,y,z)→world(z+TX, x+TY, y+TZ).
+// PCB lies flat in world XY (normal = world Z).  Hole positions from STL analysis:
+//   STL Y-axis holes at (STL_x=-0.2, STL_z=28.1) and (STL_x=46.2, STL_z=28.1).
+// PCB rests on boss tops at world Z = BASE_OUTER_Z + BUCK_FLOOR_H.
+BUCK_WALL_GAP = 2.0;   // clearance from right wall inner face to component tops
+BUCK_FLOOR_H  = 4.0;   // floor boss height — PCB rests at BASE_OUTER_Z + BUCK_FLOOR_H
+BUCK_FLOOR_X  = INNER_X + WALL - BUCK_WALL_GAP - (50.512 - 28.1);  // ≈ 117.6 mm
+BUCK_FLOOR_Y1 = WALL + BUCK_Y0 + 2.418 - 0.2;   // ≈  6.2 mm (front hole)
+BUCK_FLOOR_Y2 = WALL + BUCK_Y0 + 2.418 + 46.2;  // ≈ 52.6 mm (back  hole)
 
 // ── Outer dimensions ──────────────────────────────────────────
 OUTER_X      = INNER_X + 2*WALL;   // = 145 mm

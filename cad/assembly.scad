@@ -56,14 +56,14 @@ if (SHOW_BASE)
 // rotate([0,90,0]):  component height (STL-Z, 24.3mm) → world +X (toward right wall);
 //                   PCB short width  (STL-Y, 15.8mm) → world Z  (height = 15.8mm).
 // Mapping: STL(x,y,z) → world(z+TX, x+TY, y+TZ)
-//   TX = OUTER_X−WALL−50.512 = 91.5   TY = WALL+BUCK_Y0+2.418 = 6.4
-//   TZ = BASE_OUTER_Z−22.010 = −18.0
-// Result: component tops lie against right wall; floor = PCB solder side edge; height = 15.8 mm.
+//   TX = OUTER_X−WALL−BUCK_WALL_GAP−50.512 = 89.5   TY = WALL+BUCK_Y0+2.418 = 6.4
+//   TZ = BASE_OUTER_Z+BUCK_FLOOR_H−22.010 = −14.0
+// Result: 2mm gap from right wall; PCB solder face at BASE_OUTER_Z+BUCK_FLOOR_H.
 if (SHOW_BUCK)
     color(BUCK_COL)
-        translate([OUTER_X - WALL - 50.512,
+        translate([OUTER_X - WALL - BUCK_WALL_GAP - 50.512,
                    WALL + BUCK_Y0 + 2.418,
-                   BASE_OUTER_Z - 22.010])
+                   BASE_OUTER_Z + BUCK_FLOOR_H - 22.010])
             rotate([0, 90, 0])
                 rotate([0, 0, 90])
                     import("../reference/6811d70143b4d50b11a59159.stl", convexity=10);
