@@ -89,10 +89,16 @@ module _base_cuts() {
     translate([OUTER_X - 0.05, _usbc_yz - PORT_USBC_W/2, -0.05])
         cube([WALL + 0.1, PORT_USBC_W, PORT_USBC_H + 0.1]);
 
-    // ── Left wall: full-size SD slot (SD_H tall notch, starts above floor slab) ────────
+    // ── Left wall: SD slot notch (bottom flush with inside floor) ────────────────────
     _sd_cy = OUTER_Y / 2;
     translate([-0.05, _sd_cy - SD_W/2, BASE_OUTER_Z])
         cube([WALL + 0.1, SD_W, SD_H + 0.1]);
+
+    // ── Base floor: two M2 screw holes for SD card holder ─────────────────────────
+    // Evenly flanking slot centre at Y = _sd_cy ± SD_SCREW_SPAN/2; X = SD_SCREW_X.
+    for (sy = [_sd_cy - SD_SCREW_SPAN/2, _sd_cy + SD_SCREW_SPAN/2])
+        translate([SD_SCREW_X, sy, -0.05])
+            cylinder(d=SD_SCREW_D, h=BASE_OUTER_Z + 0.1, $fn=16);
 
     // ── M5 countersunk holes through back wall / mounting plate ──
     // Counterbore opens on the INSIDE face (Y = OUTER_Y − WALL); screw head recessed from inside.

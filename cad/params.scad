@@ -113,9 +113,13 @@ BUCK_Y   = 43.0;   // LM2596 PCB depth in enclosure Y direction
 BUCK_Z   = 17.0;   // LM2596 PCB + component height in Z (including potentiometer)
 
 // ── Full-size SD slot (extension cable, left wall) ───────────
-SD_W = 32.0;   // slot opening width in Y — TBD
-SD_H =  8.0;   // slot opening height in Z — TBD
+SD_W      = 40.4;  // slot opening width in Y (measured from SD holder)
+SD_H      =  4.0;  // slot opening height in Z (measured from SD holder)
 SD_POCKET = 34.0;  // card insertion depth in X (+X direction)
+// Two M2 screw holes in base floor, flanking the SD slot centre.
+SD_SCREW_D    = 2.0;   // screw hole diameter
+SD_SCREW_SPAN = 34.1;  // centre-to-centre Y distance between the two holes
+SD_SCREW_X    = 7.8;   // hole centre X from outside left wall surface
 
 // ── Cavity footprint (shared by base slab and cover) ─────────
 // Left wall aligns with panel left edge (PLATE_X0 = 0). OUTER_X = 145 mm (full panel width).
