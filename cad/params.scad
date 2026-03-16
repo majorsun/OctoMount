@@ -201,14 +201,17 @@ MOUNT_H2  = [30.0, 10.0];   // bottom-right hole
 //                     Z depth 0..9 mm from panel top  → Z = 21..30 mm
 //   Combined window:  18.5..47.3 mm from panel right  → 75.7..104.5 mm right of MOUNT_H2
 //
-// Z anchor: window top = MOUNT_H1[1] = 30 mm (top M5 hole height).
+// Z anchor: window top = PLATE_H = 40 mm (top edge of mounting plate).
+//   Diagram right-side labels are DEPTH FROM TOP EDGE: 0→top, 6→USB depth, 9→SD depth, 10→MOUNT_H1, 30→MOUNT_H2.
+//   Z = PLATE_H − depth  →  MOUNT_H1 at depth 10 = Z 30 ✓,  MOUNT_H2 at depth 30 = Z 10 ✓.
+//   Ports sit just above MOUNT_H1: Z = PLATE_H−9 .. PLATE_H = 31..40 mm.
 //
 BKWALL_WIN_DX0 = 75.7;    // window left  edge: offset right of MOUNT_H2 (panel right − 47.3 − 123 + 153 − 30)
 BKWALL_WIN_DX1 = 104.5;   // window right edge: offset right of MOUNT_H2 (panel right − 18.5 − 123 + 153 − 30)
 BKWALL_WIN_X0  = MOUNT_H2[0] + BKWALL_WIN_DX0;    // = 105.7 mm from enclosure left
 BKWALL_WIN_W   = BKWALL_WIN_DX1 - BKWALL_WIN_DX0; // = 28.8 mm
-BKWALL_WIN_ZHI = MOUNT_H1[1];       // = 30 mm  (anchored to top M5 hole Z)
-BKWALL_WIN_ZLO = MOUNT_H1[1] - 9.0; // = 21 mm  (9 mm window height)
+BKWALL_WIN_ZHI = PLATE_H;        // = 40 mm  (top of mounting plate = depth 0 in panel diagram)
+BKWALL_WIN_ZLO = PLATE_H - 9.0;  // = 31 mm  (9 mm window height, just above MOUNT_H1 at Z 30)
 echo(str("Cable window X=[", BKWALL_WIN_X0, " .. ", BKWALL_WIN_X0+BKWALL_WIN_W, "]  Z=[", BKWALL_WIN_ZLO, " .. ", BKWALL_WIN_ZHI, "]"));
 
 // ── RPi mounting boss positions on base (XY aligned with RPi M2.5 holes) ──
