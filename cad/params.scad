@@ -82,7 +82,7 @@ LCD_ACT_SL = 52.2;    // active area height along slope (confirmed)
 // GPIO flex cable connects RPi (rotated 90° CW) to LCD.
 // LCD orientation: chip side faces RPi (screen faces outward through cover window).
 // LCD coupling offsets must be re-derived from physical flex-cable assembly.  TBD.
-LCD_OFS_X  =  0.0;    // LCD centred on RPi in X (both centred in enclosure) — TBD confirm
+LCD_OFS_X  = (LCD_PCB_X - RPI_X) / 2;  // = 6.8 mm — left edge of LCD PCB aligned with left edge of RPi PCB
 LCD_OFS_Y  =  0.0;    // TBD — re-measure with RPi in rotated orientation
 
 // ── LCD panel layer (the front display glass, slightly smaller than PCB) ─
@@ -211,10 +211,8 @@ MOUNT_H2  = [30.0, 10.0];   // bottom-right hole
 BHINGE_R   = 1.4;    // ball/socket radius (diameter 2.8 mm ≤ WALL 3 mm)
 BHINGE_CLR = 0.1;    // socket radial clearance (tight friction fit; reduce to 0 for press-fit)
 
-BHINGE_Y       = OUTER_Y - WALL/2;  // Y: centred in back-wall zone (= 69.5 mm)
-BHINGE_WZ      = 48.5;              // world Z of centres — moved down so socket top (50 mm)
-                                    // clears side wall top (~51.5 mm) with ~1.5 mm margin
-BHINGE_EDGE_R  = 2.0;               // fillet radius on cover back-top edge (between hinges)
+BHINGE_Y  = OUTER_Y - WALL/2;  // Y: centred in back-wall zone (= 69.5 mm)
+BHINGE_WZ = 48.5;               // world Z of centres — socket top (50 mm) clears side wall top (~51.5 mm)
 
 // ── Back-wall cable pass-throughs ─────────────────────────────
 // Window positions are anchored to the two M5 mounting screws (MOUNT_H1, MOUNT_H2).

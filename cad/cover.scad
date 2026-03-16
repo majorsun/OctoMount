@@ -68,18 +68,36 @@ module _cover_front_wall() {
         cube([INNER_X, WALL, COVER_FRONT_Z]);
 }
 
-// ── Ball-hinge stubs (exact half-spheres on the cover side faces) ──
-// Ball centre lies exactly on the cover's side face (= inner face of base side wall).
-// The sphere is therefore half anchored in the cover slab and half protruding outward
-// as the hinge peg.  Hinge axis = X-parallel line through both centres.
+// ── Ball-hinge ridge (two half-spheres joined by a cylinder along the hinge axis) ──
+// The cylinder has the same radius as the balls and runs along the hinge axis between
+// them, creating one continuous rounded ridge across the full back edge of the cover.
+// When the cover flips open this convex surface rotates smoothly against the base.
 module _cover_hinge_balls() {
-    _bz = BHINGE_WZ - BASE_OUTER_Z;   // cover-local Z of ball centres (= 46 mm)
-    translate([WALL,          BHINGE_Y, _bz])  sphere(r=BHINGE_R, $fn=32);  // left
-    translate([OUTER_X-WALL,  BHINGE_Y, _bz])  sphere(r=BHINGE_R, $fn=32);  // right
+    _bz = BHINGE_WZ - BASE_OUTER_Z;   // cover-local Z of hinge axis (= 44.5 mm)
+    // Left half-sphere
+    translate([WALL,         BHINGE_Y, _bz])  sphere(r=BHINGE_R, $fn=32);
+    // Right half-sphere
+    translate([OUTER_X-WALL, BHINGE_Y, _bz])  sphere(r=BHINGE_R, $fn=32);
+    // Connecting cylinder — same axis, same radius, spans between the two balls
+    translate([WALL, BHINGE_Y, _bz])
+        rotate([0, 90, 0])
+            cylinder(r=BHINGE_R, h=INNER_X, $fn=32);
 }
 
 // ── Subtractive cuts ──────────────────────────────────────────
 module _cover_cuts() {
+    // ── Rotation-clearance fillets ───────────────────────────────
+    // Front inner-bottom edge: exposed underside of slab at the front (Y≈0).
+    // Catches on the base interior when the cover is opening through the first arc.
+    translate([WALL, 0, COVER_FRONT_Z - WALL/cos(TILT_ANGLE)])
+        rotate([0, 90, 0])
+            cylinder(r=CORNER_R, h=INNER_X, $fn=32);
+    // Outer-top-back edge: the sharp corner at (Y=OUTER_Y, Z=COVER_BACK_Z).
+    // Past ~120° open this corner arcs down and clips the top of the base back wall.
+    translate([WALL, OUTER_Y, COVER_BACK_Z])
+        rotate([0, 90, 0])
+            cylinder(r=CORNER_R, h=INNER_X, $fn=32);
+
     // LCD centre in enclosure XY — derived from RPi position + GPIO coupling
     _lY = WALL + RPI_Y0 + RPI_Y/2 + LCD_OFS_Y;   // ≈ 60 mm
     _lZ = COVER_FRONT_Z + (_lY / OUTER_Y) * (COVER_BACK_Z - COVER_FRONT_Z);
@@ -98,12 +116,6 @@ module _cover_cuts() {
     //
     // Depth: from 1 mm outside outer face to 1 mm past the panel front face
     // (inner face + CLR_ABOVE_RPI).  Panel protrudes outward through opening.
-    // ── Back-top edge fillet (between the two ball hinges) ──────
-    // Cylinder along X at the outer back-top corner removes the sharp edge so the
-    // cover sweeps clear of the side walls and back wall as it flips open.
-    translate([WALL, OUTER_Y, COVER_BACK_Z])
-        rotate([0, 90, 0])
-            cylinder(r = BHINGE_EDGE_R, h = INNER_X, $fn=32);
 
     _win_d = WALL / cos(TILT_ANGLE) + abs(CLR_ABOVE_RPI) + 1;
     translate([WALL + RPI_X0 + RPI_X/2 + LCD_OFS_X, _lY, _lZ])
