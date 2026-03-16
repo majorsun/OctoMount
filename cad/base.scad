@@ -90,7 +90,7 @@ module _base_cuts() {
         cube([WALL + 0.1, PORT_USBC_W, PORT_USBC_H + 0.1]);
 
     // ── Left wall: SD slot notch (bottom flush with inside floor) ────────────────────
-    _sd_cy = OUTER_Y / 2;
+    _sd_cy = SD_CY;
     translate([-0.05, _sd_cy - SD_W/2, BASE_OUTER_Z])
         cube([WALL + 0.1, SD_W, SD_H + 0.1]);
 

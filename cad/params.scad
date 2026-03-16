@@ -120,6 +120,7 @@ SD_POCKET = 34.0;  // card insertion depth in X (+X direction)
 SD_SCREW_D    = 2.0;   // screw hole diameter
 SD_SCREW_SPAN = 34.1;  // centre-to-centre Y distance between the two holes
 SD_SCREW_X    = 17.8;  // hole centre X from outside left wall surface
+SD_BACK_CLR   = 8.0;   // back screw hole distance from inner back wall surface
 
 // ── Cavity footprint (shared by base slab and cover) ─────────
 // Left wall aligns with panel left edge (PLATE_X0 = 0). OUTER_X = 145 mm (full panel width).
@@ -164,8 +165,10 @@ BUCK_FLOOR_Y2 = WALL + BUCK_Y0 + 2.418 + 46.44;  // ≈ 52.9 mm (back  pair, STL
 
 // ── Outer dimensions ──────────────────────────────────────────
 OUTER_X      = INNER_X + 2*WALL;   // = 145 mm
-OUTER_Y      = INNER_Y + 2*WALL;   // =  93 mm
+OUTER_Y      = INNER_Y + 2*WALL;   // =  71 mm
 BASE_OUTER_Z = 4.0;                // thin floor slab — 4 mm is enough
+// SD slot Y centre: back screw hole sits SD_BACK_CLR from inner back wall.
+SD_CY = OUTER_Y - WALL - SD_BACK_CLR - SD_SCREW_SPAN/2;
 
 // ── Tilt & cover geometry ─────────────────────────────────────
 // Plate is 125 mm wide (left-aligned), height ceiling = 52 mm.
