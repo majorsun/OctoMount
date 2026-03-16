@@ -189,37 +189,23 @@ MOUNT_H1  = [10.0, 30.0];   // top-left hole  [X, Z-from-plate-bottom]
 MOUNT_H2  = [30.0, 10.0];   // bottom-right hole
 
 // ── Back-wall cable pass-throughs ─────────────────────────────
-// Slots cut in the back wall to route cables from the Ender 3 control box
-// interior into the OctoMount enclosure.
+// Single window in the back wall routing the USB-A and microSD extension cables
+// from the Ender 3 control box interior into the OctoMount enclosure.
 //
-// Positions derived from "Sheetmetal enclosure bottom.pdf" (face view, 90° CW):
+// Positions are measured from the RIGHT edge of the enclosure (OUTER_X = 0 reference),
+// matching the Ender 3 panel drawing rotated to natural orientation:
+//   USB-A port:        18.5..34.5 mm from right  (width 16 mm, Z depth 0..6 mm from top)
+//   microSD ext port:  38.3..47.3 mm from right  (width  9 mm, Z depth 0..9 mm from top)
+//   Combined window:   18.5..47.3 mm from right  (width 28.8 mm, Z = 21..30 mm)
 //
-//   Face-view direct mapping verified by M5 holes:
-//     X_offset from PLATE_X0 = old_x   (horizontal 0..30mm)
-//     Z_OctoMount             = 153 − old_y
-//     (10,123)→[X_off=10,Z=30]=MOUNT_H1 ✓   (30,143)→[X_off=30,Z=10]=MOUNT_H2 ✓
+// Z positions: diagram top edge = Z 30 in enclosure; depth from top → subtract from 30.
+//   USB-A Z:  30−6..30 = 24..30;   SD Z:  30−9..30 = 21..30  → combined 21..30 mm.
 //
-//   Applying 90° CW rotation to the diagram axes gives slot positions:
-//     new_x (X_offset) = old_y
-//     new_z            = 30 − old_x   (30 = max of the depth axis)
-//
-//   USB-A: old_y=18.5..34.5, old_x=0..6 → X_off=18.5..34.5, Z=24..30 mm
-//   SD:    old_y=38.3..47.3, old_x=0..9 → X_off=38.3..47.3, Z=21..30 mm
-//
-// X_enclosure = PLATE_X0 + X_offset  (PLATE_X0 = 0 — left wall at panel left edge)
-//
-// USB-A cable slot — left zone of main back wall
-BKWALL_USB_X0  = PLATE_X0 + 18.5;   // = 18.5 mm from enclosure left
-BKWALL_USB_W   = 16.0;              //  = 16.0 mm  (34.5 − 18.5)
-BKWALL_USB_ZLO = 24.0;             //  = 24.0 mm  (30 − 6)
-BKWALL_USB_ZHI = 30.0;             //  = 30.0 mm  (30 − 0)
-// microSD extension cable slot — left zone of main back wall
-BKWALL_SD_X0   = PLATE_X0 + 38.3;   // = 38.3 mm from enclosure left
-BKWALL_SD_W    =  9.0;              //  =  9.0 mm  (47.3 − 38.3)
-BKWALL_SD_ZLO  = 21.0;             //  = 21.0 mm  (30 − 9)
-BKWALL_SD_ZHI  = 30.0;             //  = 30.0 mm  (30 − 0)
-echo(str("USB  slot X=[", BKWALL_USB_X0, " .. ", BKWALL_USB_X0+BKWALL_USB_W, "]  Z=[", BKWALL_USB_ZLO, " .. ", BKWALL_USB_ZHI, "]"));
-echo(str("SD   slot X=[", BKWALL_SD_X0,  " .. ", BKWALL_SD_X0+BKWALL_SD_W,   "]  Z=[", BKWALL_SD_ZLO,  " .. ", BKWALL_SD_ZHI,  "]"));
+BKWALL_WIN_X0  = OUTER_X - 47.3;   // = 97.7 mm from left (left edge of window)
+BKWALL_WIN_W   = 47.3 - 18.5;      // = 28.8 mm
+BKWALL_WIN_ZLO = 21.0;
+BKWALL_WIN_ZHI = 30.0;
+echo(str("Cable window X=[", BKWALL_WIN_X0, " .. ", BKWALL_WIN_X0+BKWALL_WIN_W, "]  Z=[", BKWALL_WIN_ZLO, " .. ", BKWALL_WIN_ZHI, "]"));
 
 // ── RPi mounting boss positions on base (XY aligned with RPi M2.5 holes) ──
 // The boss is rotate([TILT_ANGLE,0,0]) → its tip shifts -Y by h·sin(θ) relative to base.

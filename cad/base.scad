@@ -101,15 +101,10 @@ module _base_cuts() {
             rotate([-90, 0, 0])
                 m5_thru(WALL);
 
-    // ── Back wall: USB-A cable routing slot ──────────────────────
-    // Left zone of main back wall (X ≈ 18.5..34.5 mm); Z = 24..30 mm.
-    translate([BKWALL_USB_X0 - 0.05, OUTER_Y - WALL - 0.05, BKWALL_USB_ZLO])
-        cube([BKWALL_USB_W + 0.1, WALL + 0.1, BKWALL_USB_ZHI - BKWALL_USB_ZLO]);
-
-    // ── Back wall: microSD extension cable routing slot ───────────
-    // Left zone of main back wall (X ≈ 38.3..47.3 mm); Z = 21..30 mm.
-    translate([BKWALL_SD_X0 - 0.05, OUTER_Y - WALL - 0.05, BKWALL_SD_ZLO])
-        cube([BKWALL_SD_W + 0.1, WALL + 0.1, BKWALL_SD_ZHI - BKWALL_SD_ZLO]);
+    // ── Back wall: combined USB-A + microSD cable routing window ──
+    // Right zone of main back wall; X = 97.7..126.5 mm; Z = 21..30 mm.
+    translate([BKWALL_WIN_X0 - 0.05, OUTER_Y - WALL - 0.05, BKWALL_WIN_ZLO])
+        cube([BKWALL_WIN_W + 0.1, WALL + 0.1, BKWALL_WIN_ZHI - BKWALL_WIN_ZLO]);
 
     // M3 tap holes are already inside m3_boss() — no separate cut needed.
 }
