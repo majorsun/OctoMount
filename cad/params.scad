@@ -189,22 +189,26 @@ MOUNT_H1  = [10.0, 30.0];   // top-left hole  [X, Z-from-plate-bottom]
 MOUNT_H2  = [30.0, 10.0];   // bottom-right hole
 
 // ── Back-wall cable pass-throughs ─────────────────────────────
-// Single window in the back wall routing the USB-A and microSD extension cables
-// from the Ender 3 control box interior into the OctoMount enclosure.
+// Window positions are anchored to the two M5 mounting screws (MOUNT_H1, MOUNT_H2).
+// All horizontal offsets are measured in +X (rightward) from MOUNT_H2[0].
 //
-// Positions are measured from the RIGHT edge of the enclosure (OUTER_X = 0 reference),
-// matching the Ender 3 panel drawing rotated to natural orientation:
-//   USB-A port:        18.5..34.5 mm from right  (width 16 mm, Z depth 0..6 mm from top)
-//   microSD ext port:  38.3..47.3 mm from right  (width  9 mm, Z depth 0..9 mm from top)
-//   Combined window:   18.5..47.3 mm from right  (width 28.8 mm, Z = 21..30 mm)
+// Panel drawing (Ender3PanelDiagram.pdf, rotated to natural orientation):
+//   Reference = right edge of full 153 mm panel.
+//   MOUNT_H2 is at 123 mm from panel right  (= 153 − MOUNT_H2[0] = 153 − 30).
+//   USB-A port:       18.5..34.5 mm from panel right  → 104.5..75.7 mm right of MOUNT_H2
+//                     Z depth 0..6 mm from panel top  → Z = 24..30 mm
+//   microSD ext port: 38.3..47.3 mm from panel right  → 84.7..75.7 mm right of MOUNT_H2
+//                     Z depth 0..9 mm from panel top  → Z = 21..30 mm
+//   Combined window:  18.5..47.3 mm from panel right  → 75.7..104.5 mm right of MOUNT_H2
 //
-// Z positions: diagram top edge = Z 30 in enclosure; depth from top → subtract from 30.
-//   USB-A Z:  30−6..30 = 24..30;   SD Z:  30−9..30 = 21..30  → combined 21..30 mm.
+// Z anchor: window top = MOUNT_H1[1] = 30 mm (top M5 hole height).
 //
-BKWALL_WIN_X0  = OUTER_X - 47.3;   // = 97.7 mm from left (left edge of window)
-BKWALL_WIN_W   = 47.3 - 18.5;      // = 28.8 mm
-BKWALL_WIN_ZLO = 21.0;
-BKWALL_WIN_ZHI = 30.0;
+BKWALL_WIN_DX0 = 75.7;    // window left  edge: offset right of MOUNT_H2 (panel right − 47.3 − 123 + 153 − 30)
+BKWALL_WIN_DX1 = 104.5;   // window right edge: offset right of MOUNT_H2 (panel right − 18.5 − 123 + 153 − 30)
+BKWALL_WIN_X0  = MOUNT_H2[0] + BKWALL_WIN_DX0;    // = 105.7 mm from enclosure left
+BKWALL_WIN_W   = BKWALL_WIN_DX1 - BKWALL_WIN_DX0; // = 28.8 mm
+BKWALL_WIN_ZHI = MOUNT_H1[1];       // = 30 mm  (anchored to top M5 hole Z)
+BKWALL_WIN_ZLO = MOUNT_H1[1] - 9.0; // = 21 mm  (9 mm window height)
 echo(str("Cable window X=[", BKWALL_WIN_X0, " .. ", BKWALL_WIN_X0+BKWALL_WIN_W, "]  Z=[", BKWALL_WIN_ZLO, " .. ", BKWALL_WIN_ZHI, "]"));
 
 // ── RPi mounting boss positions on base (XY aligned with RPi M2.5 holes) ──
