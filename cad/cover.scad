@@ -41,9 +41,12 @@ module cover() {
             _cover_top_slab();
             _cover_front_wall();
             _cover_hinge_balls();
-            _cover_back_round();
+            _cover_back_arc();
         }
         _cover_cuts();
+        // Remove rectangular back of slab (Y ≥ BHINGE_Y) — replaced by the arc
+        translate([WALL - 0.01, BHINGE_Y + 0.01, -0.01])
+            cube([INNER_X + 0.02, OUTER_Y - BHINGE_Y + 1, COVER_BACK_Z + 1]);
     }
 }
 
@@ -85,15 +88,42 @@ module _cover_hinge_balls() {
             cylinder(r=BHINGE_R, h=INNER_X, $fn=32);
 }
 
-// ── Convex round on outer-top-back edge ─────────────────────────────────────
-// The corner at (Y≈OUTER_Y, Z=COVER_BACK_Z) clips the base back wall past ~120° open.
-// Convex (outward-bulging) cylinder: centre inset CORNER_R from both faces,
-// tangent to the top face (Z=COVER_BACK_Z) and back face (Y=OUTER_Y).
-// The square corner region is removed in _cover_cuts() and replaced by this curve.
-module _cover_back_round() {
-    translate([WALL, OUTER_Y - CORNER_R, COVER_BACK_Z - CORNER_R])
-        rotate([0, 90, 0])
-            cylinder(r=CORNER_R, h=INNER_X, $fn=32);
+// ── Circular arc back face — centred on hinge axis ───────────────────────────
+// The back section (Y ≥ BHINGE_Y) is replaced by a cylindrical arc of radius
+// _ro = distance(hinge → back-top corner).  When the cover rotates it sweeps
+// exactly this cylinder → the back face never clips the base back wall.
+//
+// Construction:
+//   outer cylinder (radius _ro, centred on hinge) ∩ Y≥BHINGE_Y ∩ slab volume
+//   The slab-volume intersection (_cover_top_slab_ext) clips the arc to the
+//   angled face planes so the result is seamlessly flush with the rest of the slab.
+module _cover_back_arc() {
+    _bz = BHINGE_WZ - BASE_OUTER_Z;
+    _ro = sqrt(pow(OUTER_Y - BHINGE_Y, 2) + pow(COVER_BACK_Z - _bz, 2)) + 0.01;
+    intersection() {
+        // Outer cylinder centred on hinge axis
+        translate([WALL, BHINGE_Y, _bz])
+            rotate([0, 90, 0])
+                cylinder(r = _ro, h = INNER_X, $fn = 64);
+        // Keep only the back half (Y ≥ BHINGE_Y)
+        translate([WALL - 0.01, BHINGE_Y, _bz - _ro - 1])
+            cube([INNER_X + 0.02, _ro + 2, _ro * 2 + 2]);
+        // Clip to slab angled volume (extended past OUTER_Y for full arc coverage)
+        _cover_top_slab_ext(10);
+    }
+}
+
+// Slab bounding volume extended extra_y mm past OUTER_Y — same parallelogram,
+// longer.  Used only as a clipping volume for _cover_back_arc.
+module _cover_top_slab_ext(extra_y) {
+    _wz = WALL / cos(TILT_ANGLE);
+    hull() {
+        translate([WALL, 0, COVER_FRONT_Z - _wz])
+            cube([INNER_X, 0.01, _wz]);
+        translate([WALL, OUTER_Y + extra_y - 0.01,
+                   COVER_BACK_Z + extra_y * tan(TILT_ANGLE) - _wz])
+            cube([INNER_X, 0.01, _wz]);
+    }
 }
 
 // ── Subtractive cuts ──────────────────────────────────────────
@@ -104,11 +134,6 @@ module _cover_cuts() {
     translate([WALL, 0, COVER_FRONT_Z - WALL/cos(TILT_ANGLE)])
         rotate([0, 90, 0])
             cylinder(r=CORNER_R, h=INNER_X, $fn=32);
-    // Outer-top-back edge: remove the square corner so the convex round (in union)
-    // is the only material in that region.  Size = CORNER_R × CORNER_R, full X span.
-    translate([WALL - 0.01, OUTER_Y - CORNER_R, COVER_BACK_Z - CORNER_R])
-        cube([INNER_X + 0.02, CORNER_R + 0.01, CORNER_R + 0.01]);
-
     // LCD centre in enclosure XY — derived from RPi position + GPIO coupling
     _lY = WALL + RPI_Y0 + RPI_Y/2 + LCD_OFS_Y;   // ≈ 60 mm
     _lZ = COVER_FRONT_Z + (_lY / OUTER_Y) * (COVER_BACK_Z - COVER_FRONT_Z);
