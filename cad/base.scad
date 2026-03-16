@@ -113,7 +113,7 @@ module _base_cuts() {
         cube([BKWALL_WIN_W + 0.1, WALL + 0.1, BKWALL_WIN_ZHI - BKWALL_WIN_ZLO]);
 
     // ── Back wall: second window (15×15 mm) — lower-left wiring access ──
-    // Left edge 10 mm right of MOUNT_H2 countersink; bottom at exterior floor (Z=0).
+    // Left edge 10 mm right of MOUNT_H2 centre; bottom at exterior floor (Z=0).
     translate([BKWALL_WIN2_X0 - 0.05, OUTER_Y - WALL - 0.05, BKWALL_WIN2_ZLO - 0.05])
         cube([BKWALL_WIN2_W + 0.1, WALL + 0.1, BKWALL_WIN2_ZHI - BKWALL_WIN2_ZLO + 0.1]);
 

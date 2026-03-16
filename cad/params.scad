@@ -224,7 +224,7 @@ echo(str("Cable window X=[", BKWALL_WIN_X0, " .. ", BKWALL_WIN_X0+BKWALL_WIN_W, 
 // Second back-wall window: 15×15 mm, lower-left area.
 // Left edge = 10 mm right of MOUNT_H2 countersink right edge (MOUNT_H2[0] + M5_CS_D/2 + 10).
 // Bottom = exterior floor surface (Z = 0).
-BKWALL_WIN2_X0  = MOUNT_H2[0] + M5_CS_D/2 + 10.0;  // = 44.75 mm
+BKWALL_WIN2_X0  = MOUNT_H2[0] + 10.0;  // = 40 mm (10 mm right of MOUNT_H2 centre)
 BKWALL_WIN2_W   = 15.0;
 BKWALL_WIN2_ZLO = 0.0;
 BKWALL_WIN2_ZHI = 15.0;
