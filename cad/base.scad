@@ -109,10 +109,12 @@ module _lcd_pcb_brackets() {
     _ly  = WALL + RPI_Y0 + RPI_Y/2 + LCD_OFS_Y;
     _wz  = WALL / cos(TILT_ANGLE);
     _lfz = COVER_FRONT_Z - _wz + _ly * tan(TILT_ANGLE);  // inner face Z at LCD Y
+    _t   = LCD_BRACKET_T;
 
     translate([0, 0, BASE_OUTER_Z])
         translate([_lx, _ly, _lfz])
-            rotate([180 + TILT_ANGLE, 0, 0])
+            rotate([180 + TILT_ANGLE, 0, 0]) {
+                // Corner brackets
                 for (sx = [-1, 1], sy = [-1, 1])
                     translate([sx * LCD_PCB_X/2,
                                sy * LCD_PCB_SL/2,
@@ -120,6 +122,17 @@ module _lcd_pcb_brackets() {
                         mirror([sx < 0 ? 1 : 0, 0, 0])
                         mirror([0, sy < 0 ? 1 : 0, 0])
                             _lcd_corner_bracket();
+
+                // Left rail — joins left two floor ledges along Y
+                translate([-LCD_PCB_X/2 - _t, -LCD_PCB_SL/2,
+                           CLR_ABOVE_RPI + LCD_T])
+                    cube([_t, LCD_PCB_SL, _t]);
+
+                // Right rail — joins right two floor ledges along Y
+                translate([LCD_PCB_X/2, -LCD_PCB_SL/2,
+                           CLR_ABOVE_RPI + LCD_T])
+                    cube([_t, LCD_PCB_SL, _t]);
+            }
 }
 
 // ── Subtractive cuts ──────────────────────────────────────────
