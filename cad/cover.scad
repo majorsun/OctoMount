@@ -109,22 +109,41 @@ module _cover_cuts() {
     _lY = WALL + RPI_Y0 + RPI_Y/2 + LCD_OFS_Y;   // ≈ 60 mm
     _lZ = COVER_FRONT_Z + (_lY / OUTER_Y) * (COVER_BACK_Z - COVER_FRONT_Z);
 
-    // ── LCD window: through-hole on the viewable area ─────────────────────────
-    // Sized to LCD_VIEW_X × LCD_VIEW_SL (+ LCD_FIT_CLR per side).
-    // LCD_VIEW_* = LCD_PANEL_* minus the four viewable-area setbacks (params.scad).
+    // ── LCD window: stepped (counterbored) opening ────────────────────────────
+    // Two concentric cuts create a visible step from inside looking up:
+    //
+    //   Inner cut — full panel body (LCD_PANEL_*):
+    //     Extends from 1 mm past the inner face up to LCD_PANEL_T below the outer face.
+    //     Panel front face sits flush against the step shoulder.
+    //
+    //   Outer cut — viewable area only (LCD_VIEW_*):
+    //     Extends from the step shoulder through the outer face (+1 overshoot).
+    //     Only the active display area is exposed to the outside.
     //
     // In the rotated frame: local +Z = outward (sky), local −Z = inward (slab).
-    // Reference point _lZ is on the outer face; cut starts 1 mm past the inner face
-    // (−_win_d) and overshoots the outer face by 1 mm (+1) for a clean through-hole.
-    _wz    = WALL / cos(TILT_ANGLE);
-    _win_d = _wz + abs(CLR_ABOVE_RPI) + 1;   // depth to 1 mm past inner face
+    // Reference _lZ is on the outer face.
+    _wz   = WALL / cos(TILT_ANGLE);
+    _deep = _wz + abs(CLR_ABOVE_RPI) + 1;  // depth: 1 mm past inner face
+    _step = LCD_PANEL_T;                    // step shoulder: LCD_PANEL_T below outer face
+
+    // Inner large cut: panel body
+    translate([WALL + RPI_X0 + RPI_X/2 + LCD_OFS_X, _lY, _lZ])
+        rotate([TILT_ANGLE, 0, 0])
+            translate([LCD_PANEL_OX  - (LCD_PANEL_X/2  + LCD_FIT_CLR),
+                       LCD_PANEL_OSL - (LCD_PANEL_SL/2 + LCD_FIT_CLR),
+                       -_deep])
+                cube([LCD_PANEL_X  + 2*LCD_FIT_CLR,
+                      LCD_PANEL_SL + 2*LCD_FIT_CLR,
+                      _deep - _step]);      // stops at step shoulder
+
+    // Outer small cut: viewable area through-hole
     translate([WALL + RPI_X0 + RPI_X/2 + LCD_OFS_X, _lY, _lZ])
         rotate([TILT_ANGLE, 0, 0])
             translate([LCD_VIEW_OX  - (LCD_VIEW_X/2  + LCD_FIT_CLR),
                        LCD_VIEW_OSL - (LCD_VIEW_SL/2 + LCD_FIT_CLR),
-                       -_win_d])
+                       -_step])
                 cube([LCD_VIEW_X  + 2*LCD_FIT_CLR,
                       LCD_VIEW_SL + 2*LCD_FIT_CLR,
-                      _win_d + 1]);   // +1 overshoots outer face → full through-hole
+                      _step + 1]);          // +1 overshoots outer face
 
 }
