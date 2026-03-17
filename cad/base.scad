@@ -153,7 +153,7 @@ module _lcd_pcb_brackets() {
                     for (sy = [-1, 1])
                         let(_yl      = sy * LCD_PCB_SL/2,
                             _z_floor = (_lfz - _yl * _sin_t) / _cos_t)
-                        translate([LCD_PCB_X/2, _yl - _t, _z_ledge])
+                        translate([LCD_PCB_X/2 - _t, _yl - _t, _z_ledge])
                             cube([2*_t, 2*_t, _z_floor - _z_ledge]);
             }
     }
