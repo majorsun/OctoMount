@@ -124,7 +124,7 @@ STYLUS_D       =  5.0;   // stylus outer diameter
 STYLUS_CLR     =  0.3;   // per-side clearance in clip channel
 STYLUS_CLIP_T  =  1.5;   // clip wall thickness
 STYLUS_CLIP_W  = 10.0;   // clip width along X (= stylus axis)
-STYLUS_CLIP_Y  = 10.0;   // clip centre Y from front of slab (along-slope distance from Y=WALL)
+STYLUS_CLIP_Y  =  0.0;   // clip centre Y from front of slab (along-slope distance from Y=WALL)
 STYLUS_CLIP_DX = 30.0;   // X offset of each clip from cover X centre
 
 // ── Fan (in MPI4008 kit sandwich) ────────────────────────────
