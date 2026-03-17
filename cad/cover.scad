@@ -36,13 +36,18 @@ include <params.scad>
 cover();
 
 module cover() {
-    difference() {
-        union() {
-            _cover_top_slab();
-            _cover_front_wall();
-            _cover_hinge_balls();
+    // Clips are unioned OUTSIDE the main difference() so the yellow cut
+    // (which trims everything above the slab outer face) does not remove them.
+    union() {
+        difference() {
+            union() {
+                _cover_top_slab();
+                _cover_front_wall();
+                _cover_hinge_balls();
+            }
+            _cover_cuts();
         }
-        _cover_cuts();
+        _cover_clips();
     }
 }
 
@@ -82,6 +87,50 @@ module _cover_hinge_balls() {
     translate([WALL, BHINGE_Y, _bz])
         rotate([0, 90, 0])
             cylinder(r=BHINGE_R, h=INNER_X, $fn=32);
+}
+
+// ── Stylus snap-clips ─────────────────────────────────────────
+// Two C-ring clips on the outer slab face, symmetric about cover X centre.
+// Each clip holds a STYLUS_D-diameter stylus horizontally (along world X).
+// The clip axis runs along local X (unchanged by the X-axis tilt rotation).
+// Opening faces local +Z (outward = toward user) with a snap-fit gap.
+//
+// Local frame: origin on outer slab face at clip centre Y, local +Z = outward.
+module _stylus_snap_clip() {
+    _Ri  = STYLUS_D/2 + STYLUS_CLR;   // channel inner radius
+    _t   = STYLUS_CLIP_T;              // wall thickness
+    _Ro  = _Ri + _t;                   // channel outer radius
+    _W   = STYLUS_CLIP_W;              // clip width along X
+    _gap = STYLUS_D * 0.85;            // snap opening (< OD → flex snap-fit)
+
+    difference() {
+        union() {
+            // Base pad — bonds clip to slab outer face
+            translate([-_W/2, -(_Ro + _t), 0])
+                cube([_W, 2*(_Ro + _t), _t]);
+            // C-ring — axis along X, centre at local (0, 0, _t + _Ro)
+            translate([0, 0, _t + _Ro])
+                rotate([0, 90, 0])
+                    cylinder(r=_Ro, h=_W, center=true, $fn=48);
+        }
+        // Stylus channel
+        translate([0, 0, _t + _Ro])
+            rotate([0, 90, 0])
+                cylinder(r=_Ri, h=_W + 1, center=true, $fn=48);
+        // Snap opening slot — cut from ring centre outward (+Z), width = _gap
+        translate([-_W/2 - 1, -_gap/2, _t + _Ro])
+            cube([_W + 2, _gap, _Ro + 1]);
+    }
+}
+
+module _cover_clips() {
+    for (cx = [OUTER_X/2 - STYLUS_CLIP_DX, OUTER_X/2 + STYLUS_CLIP_DX]) {
+        _cy = WALL + STYLUS_CLIP_Y;                         // world Y of clip centre
+        _cz = COVER_FRONT_Z + _cy * tan(TILT_ANGLE);       // outer face Z at that Y
+        translate([cx, _cy, _cz])
+            rotate([TILT_ANGLE, 0, 0])
+                _stylus_snap_clip();
+    }
 }
 
 // ── Subtractive cuts ──────────────────────────────────────────
