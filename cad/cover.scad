@@ -36,18 +36,24 @@ include <params.scad>
 cover();
 
 module cover() {
-    // Clips are unioned OUTSIDE the main difference() so the yellow cut
-    // (which trims everything above the slab outer face) does not remove them.
-    union() {
-        difference() {
-            union() {
-                _cover_top_slab();
-                _cover_front_wall();
-                _cover_hinge_balls();
+    // Two-level difference:
+    //   Inner difference: yellow + red trim cuts apply to slab/walls/hinge only
+    //                     (clips must NOT be trimmed flush with the slab surface).
+    //   Outer difference: LCD window cuts apply to everything incl. clips
+    //                     (removes any clip material intruding into the window).
+    difference() {
+        union() {
+            difference() {
+                union() {
+                    _cover_top_slab();
+                    _cover_front_wall();
+                    _cover_hinge_balls();
+                }
+                _cover_trim_cuts();
             }
-            _cover_cuts();
+            _cover_clips();
         }
-        _cover_clips();
+        _lcd_window_cuts();
     }
 }
 
@@ -128,41 +134,26 @@ module _cover_clips() {
     }
 }
 
-// ── Subtractive cuts ──────────────────────────────────────────
-module _cover_cuts() {
-    // ── Yellow cut: everything above the slab outer face plane ───────────────
-    // The outer face of the slab is at Z = COVER_FRONT_Z + Y·tan(TILT_ANGLE).
-    // A box rotated by TILT_ANGLE around X (origin at Y=0, Z=COVER_FRONT_Z)
-    // removes all material above/outside that plane — trimming any protrusion
-    // (hinge dome, arc cap, etc.) flush with the slab outer face.
+// ── Trim cuts (slab shape only — do NOT apply to clips) ───────
+module _cover_trim_cuts() {
+    // Yellow cut: everything above the slab outer face plane
     translate([WALL - 1, 0, COVER_FRONT_Z])
         rotate([TILT_ANGLE, 0, 0])
             cube([INNER_X + 2, OUTER_Y + 20, 200]);
 
-    // ── Red cut: everything beyond the slab back face (Y > OUTER_Y) ──────────
+    // Red cut: everything beyond Y > OUTER_Y
     translate([WALL - 1, OUTER_Y, -1])
         cube([INNER_X + 2, 100, 300]);
+}
 
-    // LCD centre in enclosure XY — derived from RPi position + GPIO coupling
-    _lY = WALL + RPI_Y0 + RPI_Y/2 + LCD_OFS_Y;   // ≈ 60 mm
+// ── LCD window cuts (applied to everything incl. clips) ───────
+module _lcd_window_cuts() {
+    _lY = WALL + RPI_Y0 + RPI_Y/2 + LCD_OFS_Y;
     _lZ = COVER_FRONT_Z + (_lY / OUTER_Y) * (COVER_BACK_Z - COVER_FRONT_Z);
 
-    // ── LCD window: stepped (counterbored) opening ────────────────────────────
-    // Two concentric cuts create a visible step from inside looking up:
-    //
-    //   Inner cut — full panel body (LCD_PANEL_*):
-    //     Extends from 1 mm past the inner face up to LCD_PANEL_T below the outer face.
-    //     Panel front face sits flush against the step shoulder.
-    //
-    //   Outer cut — viewable area only (LCD_VIEW_*):
-    //     Extends from the step shoulder through the outer face (+1 overshoot).
-    //     Only the active display area is exposed to the outside.
-    //
-    // In the rotated frame: local +Z = outward (sky), local −Z = inward (slab).
-    // Reference _lZ is on the outer face.
     _wz   = WALL / cos(TILT_ANGLE);
-    _deep = _wz + abs(CLR_ABOVE_RPI) + 1;  // depth: 1 mm past inner face
-    _step = LCD_WIN_SKIN;                   // step shoulder depth from outer face (params.scad)
+    _deep = _wz + abs(CLR_ABOVE_RPI) + 1;
+    _step = LCD_WIN_SKIN;
 
     // Inner large cut: panel body
     translate([WALL + RPI_X0 + RPI_X/2 + LCD_OFS_X, _lY, _lZ])
@@ -172,14 +163,9 @@ module _cover_cuts() {
                        -_deep])
                 cube([LCD_PANEL_X  + 2*LCD_FIT_CLR,
                       LCD_PANEL_SL + 2*LCD_FIT_CLR,
-                      _deep - _step]);      // stops at step shoulder
+                      _deep - _step]);
 
     // Outer small cut: viewable area — full through-hole
-    // Starts from -_deep (same as inner cut) so it unambiguously clears both
-    // the inner face and the outer face.  The step shoulder is visible because
-    // the inner cut (panel-sized) ends at -_step while this cut continues
-    // through the outer face; the annular panel-minus-viewable region stays
-    // solid from -_step to the outer face, forming the retaining ledge.
     translate([WALL + RPI_X0 + RPI_X/2 + LCD_OFS_X, _lY, _lZ])
         rotate([TILT_ANGLE, 0, 0])
             translate([LCD_VIEW_OX  - (LCD_VIEW_X/2  + LCD_FIT_CLR),
@@ -187,6 +173,5 @@ module _cover_cuts() {
                        -_deep])
                 cube([LCD_VIEW_X  + 2*LCD_FIT_CLR,
                       LCD_VIEW_SL + 2*LCD_FIT_CLR,
-                      _deep + 1]);          // +1 overshoots outer face
-
+                      _deep + 1]);
 }
