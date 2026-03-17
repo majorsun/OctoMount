@@ -103,6 +103,22 @@ LCD_PANEL_SL   = LCD_PCB_SL - LCD_SB_FRONT - LCD_SB_BACK;     // panel depth alo
 LCD_PANEL_OX   = (LCD_SB_LEFT  - LCD_SB_RIGHT)  / 2;  // panel centre X shift from PCB centre
 LCD_PANEL_OSL  = (LCD_SB_FRONT - LCD_SB_BACK)   / 2;  // panel centre slope shift from PCB centre
 
+// ── LCD viewable area (window opening in cover) ───────────────
+// Setbacks from the panel edges to the viewable/active area edges.
+// The cover window is cut to this size (+ LCD_FIT_CLR per side).
+// All zero until measured from the physical unit.
+LCD_VIEW_SB_LEFT  = 0;   // panel -X edge → viewable area -X edge  — TBD
+LCD_VIEW_SB_RIGHT = 0;   // panel +X edge → viewable area +X edge  — TBD
+LCD_VIEW_SB_FRONT = 0;   // panel low-slope edge → viewable edge    — TBD
+LCD_VIEW_SB_BACK  = 0;   // panel high-slope edge → viewable edge   — TBD
+
+LCD_VIEW_X   = LCD_PANEL_X   - LCD_VIEW_SB_LEFT  - LCD_VIEW_SB_RIGHT;
+LCD_VIEW_SL  = LCD_PANEL_SL  - LCD_VIEW_SB_FRONT - LCD_VIEW_SB_BACK;
+LCD_VIEW_OX  = LCD_PANEL_OX  + (LCD_VIEW_SB_LEFT  - LCD_VIEW_SB_RIGHT)  / 2;
+LCD_VIEW_OSL = LCD_PANEL_OSL + (LCD_VIEW_SB_FRONT - LCD_VIEW_SB_BACK)   / 2;
+
+LCD_WIN_SKIN = 1.0;  // cover face thickness over LCD window (outer skin kept, not a through-hole)
+
 // ── Fan (in MPI4008 kit sandwich) ────────────────────────────
 FAN_SIZE = 30.0;   // fan square side — TBD
 FAN_T    =  7.0;   // fan thickness  — TBD

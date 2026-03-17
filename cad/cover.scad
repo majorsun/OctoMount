@@ -109,29 +109,25 @@ module _cover_cuts() {
     _lY = WALL + RPI_Y0 + RPI_Y/2 + LCD_OFS_Y;   // ≈ 60 mm
     _lZ = COVER_FRONT_Z + (_lY / OUTER_Y) * (COVER_BACK_Z - COVER_FRONT_Z);
 
-    // ── LCD window: panel layer fits snugly in opening (COND 2 + COND 3) ─
-    // rotate([+TILT_ANGLE,0,0]): local+Z = face OUTWARD normal →
-    // cut is exactly perpendicular to the tilted face (COND 2). ✓
+    // ── LCD window: blind pocket in cover face, LCD_WIN_SKIN thick outer skin ─
+    // The outer face of the cover is NOT cut through — LCD_WIN_SKIN (1 mm) of
+    // material is kept so the screen is behind a thin translucent/opaque skin.
     //
-    // Sized to LCD_PANEL_X × LCD_PANEL_SL + LCD_FIT_CLR per side.
-    // The LCD panel (front layer, slightly smaller than PCB) seats snugly
-    // in the window (COND 3). ✓  The PCB layer (larger, behind panel)
-    // cannot pass through — it is retained by the cover face. ✓
+    // Pocket sized to LCD_VIEW_X × LCD_VIEW_SL + LCD_FIT_CLR per side.
+    // LCD_VIEW_* = LCD_PANEL_* minus the four viewable-area setbacks.
     //
-    // Centre: LCD PCB centre + (LCD_PANEL_OX, LCD_PANEL_OSL) in local XY.
-    // These offsets are non-zero when setbacks are asymmetric.
-    //
-    // Depth: from 1 mm outside outer face to 1 mm past the panel front face
-    // (inner face + CLR_ABOVE_RPI).  Panel protrudes outward through opening.
-
-    _win_d = WALL / cos(TILT_ANGLE) + abs(CLR_ABOVE_RPI) + 1;
+    // In the rotated frame local +Z = inward, local −Z = outward (outer face).
+    // Pocket starts LCD_WIN_SKIN below the outer face and extends inward to
+    // accommodate the panel depth (abs(CLR_ABOVE_RPI)).
+    _wz     = WALL / cos(TILT_ANGLE);
+    _win_d  = _wz - LCD_WIN_SKIN + abs(CLR_ABOVE_RPI);
     translate([WALL + RPI_X0 + RPI_X/2 + LCD_OFS_X, _lY, _lZ])
         rotate([TILT_ANGLE, 0, 0])
-            translate([LCD_PANEL_OX  - (LCD_PANEL_X/2  + LCD_FIT_CLR),
-                       LCD_PANEL_OSL - (LCD_PANEL_SL/2 + LCD_FIT_CLR),
-                       -_win_d])
-                cube([LCD_PANEL_X  + 2*LCD_FIT_CLR,
-                      LCD_PANEL_SL + 2*LCD_FIT_CLR,
-                      _win_d + 1]);
+            translate([LCD_VIEW_OX  - (LCD_VIEW_X/2  + LCD_FIT_CLR),
+                       LCD_VIEW_OSL - (LCD_VIEW_SL/2 + LCD_FIT_CLR),
+                       -(_wz - LCD_WIN_SKIN)])
+                cube([LCD_VIEW_X  + 2*LCD_FIT_CLR,
+                      LCD_VIEW_SL + 2*LCD_FIT_CLR,
+                      _win_d]);
 
 }
