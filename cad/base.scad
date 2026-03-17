@@ -129,13 +129,20 @@ module _lcd_pcb_brackets() {
                     _h = LCD_T - LCD_PANEL_T) {
                     translate([_bx0, -LCD_PCB_SL/2 - _t, CLR_ABOVE_RPI + LCD_T])
                         cube([_bw, LCD_PCB_SL + 2*_t, _t]);
-                    // Two ribs — fins along X at ±LCD_PCB_SL/6, below the plate to base floor
+                    // Two triangular ribs — right-triangle profile in XZ plane,
+                    // tall at left wall, tapering to zero at PCB edge.
                     let(_sin_t = sin(TILT_ANGLE), _cos_t = cos(TILT_ANGLE),
                         _z_top = CLR_ABOVE_RPI + LCD_T + _t)
                         for (ry = [-LCD_PCB_SL/6, LCD_PCB_SL/6])
                             let(_z_floor = (_lfz - ry * _sin_t) / _cos_t)
-                            translate([_bx0, ry - _t/2, _z_top])
-                                cube([_bw, _t, _z_floor - _z_top]);
+                            hull() {
+                                // Tall face at left wall
+                                translate([_bx0, ry - _t/2, _z_top])
+                                    cube([0.01, _t, _z_floor - _z_top]);
+                                // Zero-height edge at PCB left edge
+                                translate([-LCD_PCB_X/2 - 0.01, ry - _t/2, _z_top])
+                                    cube([0.01, _t, 0.01]);
+                            }
                 }
 
                 // Right rail — joins right two floor ledges along Y
