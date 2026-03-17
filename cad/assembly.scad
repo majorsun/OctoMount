@@ -6,7 +6,7 @@
 //
 // Flags:
 //   SHOW_BASE      = 1  → render the base
-//   SHOW_COVER     = 1  → render the cover (semi-transparent)
+//   SHOW_COVER     = 0  → render the cover (semi-transparent)
 //   EXPLODE        = 1  → exploded view (cover lifted off base)
 //   SHOW_RPI       = 1  → ghost RPi PCB inside
 //   SHOW_LCD       = 1  → ghost LCD module (PCB + panel) inside
@@ -30,13 +30,13 @@ use <cover.scad>
 SHOW_BASE       = 1;     // 1 = render base
 SHOW_COVER      = 1;     // 1 = render cover
 
-EXPLODE         = 0;
+EXPLODE         = 1;
 EXP_D           = 60;    // explode separation in mm
 
 SHOW_RPI        = 1;     // 1 = show ghost RPi PCB inside
 SHOW_LCD        = 1;     // 1 = show ghost LCD module inside
 SHOW_BUCK       = 1;     // 1 = show ghost LM2596 buck converter
-SHOW_DEBUG      = 0;     // 1 = red spheres at boss-tip world positions
+SHOW_DEBUG      = 1;     // 1 = red spheres at boss-tip world positions
 
 BASE_COL       = [0.3,  0.55, 0.75, 1.0];   // blue-grey, opaque
 COVER_COL      = [0.25, 0.45, 0.65, 0.7];   // slightly darker, semi-transparent
@@ -76,7 +76,7 @@ if (SHOW_DEBUG)
             translate([bx, by, BASE_OUTER_Z])
                 rotate([TILT_ANGLE, 0, 0])
                     translate([0, 0, _BH_C + by * sin(TILT_ANGLE)])
-                        sphere(r=1.2, $fn=16);
+                        sphere(r=2.0, $fn=16);
 
 // ── Cover + internals ─────────────────────────────────────────
 _cover_dz = BASE_OUTER_Z + EXPLODE * EXP_D;
