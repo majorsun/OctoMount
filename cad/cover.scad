@@ -136,14 +136,19 @@ module _cover_cuts() {
                       LCD_PANEL_SL + 2*LCD_FIT_CLR,
                       _deep - _step]);      // stops at step shoulder
 
-    // Outer small cut: viewable area through-hole
+    // Outer small cut: viewable area — full through-hole
+    // Starts from -_deep (same as inner cut) so it unambiguously clears both
+    // the inner face and the outer face.  The step shoulder is visible because
+    // the inner cut (panel-sized) ends at -_step while this cut continues
+    // through the outer face; the annular panel-minus-viewable region stays
+    // solid from -_step to the outer face, forming the retaining ledge.
     translate([WALL + RPI_X0 + RPI_X/2 + LCD_OFS_X, _lY, _lZ])
         rotate([TILT_ANGLE, 0, 0])
             translate([LCD_VIEW_OX  - (LCD_VIEW_X/2  + LCD_FIT_CLR),
                        LCD_VIEW_OSL - (LCD_VIEW_SL/2 + LCD_FIT_CLR),
-                       -_step])
+                       -_deep])
                 cube([LCD_VIEW_X  + 2*LCD_FIT_CLR,
                       LCD_VIEW_SL + 2*LCD_FIT_CLR,
-                      _step + 1]);          // +1 overshoots outer face
+                      _deep + 1]);          // +1 overshoots outer face
 
 }
