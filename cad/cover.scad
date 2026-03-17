@@ -124,7 +124,7 @@ module _cover_cuts() {
     // Reference _lZ is on the outer face.
     _wz   = WALL / cos(TILT_ANGLE);
     _deep = _wz + abs(CLR_ABOVE_RPI) + 1;  // depth: 1 mm past inner face
-    _step = LCD_PANEL_T;                    // step shoulder: LCD_PANEL_T below outer face
+    _step = LCD_WIN_SKIN;                   // step shoulder depth from outer face (params.scad)
 
     // Inner large cut: panel body
     translate([WALL + RPI_X0 + RPI_X/2 + LCD_OFS_X, _lY, _lZ])
