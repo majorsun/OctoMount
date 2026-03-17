@@ -159,13 +159,14 @@ module _lcd_pcb_brackets() {
         //                                            z_w = _lfz − y_l·sinT − z_l·cosT
         let(_sin_t = sin(TILT_ANGLE), _cos_t = cos(TILT_ANGLE),
             _zc = CLR_ABOVE_RPI + LCD_T,
-            _px = _lx + LCD_PCB_X/2 - _t)
+            _px = _lx + LCD_PCB_X/2 - 3*_t)   // right face stays flush with rail outer edge
             for (sy = [-1, 1])
                 let(_yl = sy * LCD_PCB_SL/2,
                     _wy = _ly - _yl * _cos_t + _zc * _sin_t,
-                    _wz = _lfz - _yl * _sin_t - _zc * _cos_t)
-                translate([_px, _wy - _t, 0])
-                    cube([2*_t, 2*_t, _wz]);
+                    _wz = _lfz - _yl * _sin_t - _zc * _cos_t,
+                    _ty = _wy - _t * (sy > 0 ? 1 : 3))  // outer Y face stays fixed
+                translate([_px, _ty, 0])
+                    cube([4*_t, 4*_t, _wz]);
     }
 }
 
