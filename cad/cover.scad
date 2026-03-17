@@ -38,15 +38,12 @@ cover();
 module cover() {
     difference() {
         union() {
-            _cover_top_slab();
+            _cover_top_slab_trimmed();
             _cover_front_wall();
             _cover_hinge_balls();
             _cover_back_arc();
         }
         _cover_cuts();
-        // Remove rectangular back of slab (Y ≥ BHINGE_Y) — replaced by the arc
-        translate([WALL - 0.01, BHINGE_Y + 0.01, -0.01])
-            cube([INNER_X + 0.02, OUTER_Y - BHINGE_Y + 1, COVER_BACK_Z + 1]);
     }
 }
 
@@ -63,6 +60,14 @@ module _cover_top_slab() {
             cube([INNER_X, 0.01, _wz]);
         translate([WALL, OUTER_Y - 0.01, COVER_BACK_Z - _wz])
             cube([INNER_X, 0.01, _wz]);
+    }
+}
+
+// Slab clipped to Y < BHINGE_Y so the arc module can own the back section.
+module _cover_top_slab_trimmed() {
+    intersection() {
+        _cover_top_slab();
+        cube([OUTER_X, BHINGE_Y + 0.01, COVER_BACK_Z + 10]);
     }
 }
 
