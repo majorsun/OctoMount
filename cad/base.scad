@@ -79,6 +79,47 @@ module _base_solid() {
     for (bx = [BUCK_FLOOR_X1, BUCK_FLOOR_X2], by = [BUCK_FLOOR_Y1, BUCK_FLOOR_Y2])
         translate([bx, by, BASE_OUTER_Z])
             m3_boss(BUCK_FLOOR_H);
+
+    // LCD PCB corner brackets (floating — support to be added later).
+    _lcd_pcb_brackets();
+}
+
+// ── LCD PCB corner brackets ───────────────────────────────────
+// L-shaped brackets at all four corners of the LCD PCB board.
+// Same transform chain as the LCD ghost in assembly.scad.
+// Bracket walls sit on the OUTSIDE of each PCB edge and run along it.
+// Height spans the PCB layer (CLR_ABOVE_RPI+LCD_PANEL_T .. CLR_ABOVE_RPI+LCD_T).
+//
+// Canonical bracket is for the (+X, +Y) corner (inside corner at origin);
+// mirror([1,0,0]) and mirror([0,1,0]) adapt it to the other three corners.
+module _lcd_corner_bracket() {
+    _t = LCD_BRACKET_T;
+    _w = LCD_BRACKET_W;
+    _h = LCD_T - LCD_PANEL_T;   // PCB layer thickness
+    // Wall along X edge (runs −X from corner, sits on +Y outside of PCB)
+    translate([-_w, 0, 0]) cube([_w + _t, _t, _h]);
+    // Wall along Y edge (runs −Y from corner, sits on +X outside of PCB)
+    translate([0, -_w, 0]) cube([_t, _w, _h]);
+    // Floor under PCB corner — ledge supporting the bottom face of the PCB layer
+    translate([-_w, -_w, -_t]) cube([_w + _t, _w + _t, _t]);
+}
+
+module _lcd_pcb_brackets() {
+    _lx  = WALL + RPI_X0 + RPI_X/2 + LCD_OFS_X;
+    _ly  = WALL + RPI_Y0 + RPI_Y/2 + LCD_OFS_Y;
+    _wz  = WALL / cos(TILT_ANGLE);
+    _lfz = COVER_FRONT_Z - _wz + _ly * tan(TILT_ANGLE);  // inner face Z at LCD Y
+
+    translate([0, 0, BASE_OUTER_Z])
+        translate([_lx, _ly, _lfz])
+            rotate([180 + TILT_ANGLE, 0, 0])
+                for (sx = [-1, 1], sy = [-1, 1])
+                    translate([sx * LCD_PCB_X/2,
+                               sy * LCD_PCB_SL/2,
+                               CLR_ABOVE_RPI + LCD_PANEL_T])
+                        mirror([sx < 0 ? 1 : 0, 0, 0])
+                        mirror([0, sy < 0 ? 1 : 0, 0])
+                            _lcd_corner_bracket();
 }
 
 // ── Subtractive cuts ──────────────────────────────────────────
