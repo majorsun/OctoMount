@@ -120,12 +120,12 @@ module _cover_cuts() {
     // Pocket starts LCD_WIN_SKIN below the outer face and extends inward to
     // accommodate the panel depth (abs(CLR_ABOVE_RPI)).
     _wz     = WALL / cos(TILT_ANGLE);
-    _win_d  = _wz - LCD_WIN_SKIN + abs(CLR_ABOVE_RPI);
+    _win_d  = _wz - LCD_WIN_SKIN + abs(CLR_ABOVE_RPI) + 1;
     translate([WALL + RPI_X0 + RPI_X/2 + LCD_OFS_X, _lY, _lZ])
         rotate([TILT_ANGLE, 0, 0])
             translate([LCD_VIEW_OX  - (LCD_VIEW_X/2  + LCD_FIT_CLR),
                        LCD_VIEW_OSL - (LCD_VIEW_SL/2 + LCD_FIT_CLR),
-                       -(_wz - LCD_WIN_SKIN)])
+                       LCD_WIN_SKIN])
                 cube([LCD_VIEW_X  + 2*LCD_FIT_CLR,
                       LCD_VIEW_SL + 2*LCD_FIT_CLR,
                       _win_d]);
