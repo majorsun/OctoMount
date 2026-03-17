@@ -41,7 +41,6 @@ module cover() {
             _cover_top_slab();
             _cover_front_wall();
             _cover_hinge_balls();
-            _cover_back_arc();
         }
         _cover_cuts();
     }
@@ -85,37 +84,22 @@ module _cover_hinge_balls() {
             cylinder(r=BHINGE_R, h=INNER_X, $fn=32);
 }
 
-// ── Convex arc cap beyond the slab back face ─────────────────────────────────
-// The slab ends at Y = OUTER_Y with a flat vertical back face.
-// This module adds only the material BEYOND Y = OUTER_Y: a cylindrical cap
-// centred on the hinge axis (radius _ro = distance hinge → back-top corner).
-// When the cover rotates, the cap surface sweeps that same cylinder →
-// the back face never clips the base back wall at any opening angle.
-//
-// Clipped to:
-//   Y ≥ OUTER_Y          — only the protrusion beyond the flat slab back face
-//   Z = COVER_BACK_Z-_wz … COVER_BACK_Z   — slab thickness at the back
-module _cover_back_arc() {
-    _bz = BHINGE_WZ - BASE_OUTER_Z;
-    _wz = WALL / cos(TILT_ANGLE);
-    _ro = sqrt(pow(OUTER_Y - BHINGE_Y, 2) + pow(COVER_BACK_Z - _bz, 2)) + 0.01;
-    intersection() {
-        // Cylinder centred on hinge axis
-        translate([WALL, BHINGE_Y, _bz])
-            rotate([0, 90, 0])
-                cylinder(r = _ro, h = INNER_X, $fn = 64);
-        // Keep only the protrusion past the slab back face
-        translate([WALL - 0.01, OUTER_Y, -0.01])
-            cube([INNER_X + 0.02, _ro + 1, COVER_BACK_Z + 1]);
-        // Clip to slab thickness (inner face … outer face at the back)
-        translate([WALL - 0.01, BHINGE_Y - 0.01, COVER_BACK_Z - _wz - 0.01])
-            cube([INNER_X + 0.02, _ro + 2, _wz + 0.02]);
-    }
-}
-
 // ── Subtractive cuts ──────────────────────────────────────────
 module _cover_cuts() {
-    // ── Rotation-clearance fillets ───────────────────────────────
+    // ── Yellow cut: everything above the slab outer face plane ───────────────
+    // The outer face of the slab is at Z = COVER_FRONT_Z + Y·tan(TILT_ANGLE).
+    // A box rotated by TILT_ANGLE around X (origin at Y=0, Z=COVER_FRONT_Z)
+    // removes all material above/outside that plane — trimming any protrusion
+    // (hinge dome, arc cap, etc.) flush with the slab outer face.
+    translate([WALL - 1, 0, COVER_FRONT_Z])
+        rotate([TILT_ANGLE, 0, 0])
+            cube([INNER_X + 2, OUTER_Y + 20, 200]);
+
+    // ── Red cut: everything beyond the slab back face (Y > OUTER_Y) ──────────
+    translate([WALL - 1, OUTER_Y, -1])
+        cube([INNER_X + 2, 100, 300]);
+
+    // ── Rotation-clearance fillet ─────────────────────────────────────────────
     // Front inner-bottom edge: exposed underside of slab at the front (Y≈0).
     // Catches on the base interior when the cover is opening through the first arc.
     translate([WALL, 0, COVER_FRONT_Z - WALL/cos(TILT_ANGLE)])
