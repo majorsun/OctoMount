@@ -119,15 +119,17 @@ module _cover_cuts() {
     // In the rotated frame local +Z = inward, local −Z = outward (outer face).
     // Pocket starts LCD_WIN_SKIN below the outer face and extends inward to
     // accommodate the panel depth (abs(CLR_ABOVE_RPI)).
-    _wz     = WALL / cos(TILT_ANGLE);
-    _win_d  = _wz - LCD_WIN_SKIN + abs(CLR_ABOVE_RPI) + 1;
+    // Local +Z = outward (sky), local −Z = inward (through slab).
+    // Pocket: start 1 mm past the inner face, stop LCD_WIN_SKIN before the outer face.
+    _wz    = WALL / cos(TILT_ANGLE);
+    _win_d = _wz + abs(CLR_ABOVE_RPI) + 1;   // same origin as original through-hole
     translate([WALL + RPI_X0 + RPI_X/2 + LCD_OFS_X, _lY, _lZ])
         rotate([TILT_ANGLE, 0, 0])
             translate([LCD_VIEW_OX  - (LCD_VIEW_X/2  + LCD_FIT_CLR),
                        LCD_VIEW_OSL - (LCD_VIEW_SL/2 + LCD_FIT_CLR),
-                       LCD_WIN_SKIN])
+                       -_win_d])
                 cube([LCD_VIEW_X  + 2*LCD_FIT_CLR,
                       LCD_VIEW_SL + 2*LCD_FIT_CLR,
-                      _win_d]);
+                      _win_d - LCD_WIN_SKIN]);   // stop LCD_WIN_SKIN short of outer face
 
 }
