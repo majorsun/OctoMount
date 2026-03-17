@@ -109,20 +109,15 @@ module _cover_cuts() {
     _lY = WALL + RPI_Y0 + RPI_Y/2 + LCD_OFS_Y;   // ≈ 60 mm
     _lZ = COVER_FRONT_Z + (_lY / OUTER_Y) * (COVER_BACK_Z - COVER_FRONT_Z);
 
-    // ── LCD window: blind pocket in cover face, LCD_WIN_SKIN thick outer skin ─
-    // The outer face of the cover is NOT cut through — LCD_WIN_SKIN (1 mm) of
-    // material is kept so the screen is behind a thin translucent/opaque skin.
+    // ── LCD window: through-hole on the viewable area ─────────────────────────
+    // Sized to LCD_VIEW_X × LCD_VIEW_SL (+ LCD_FIT_CLR per side).
+    // LCD_VIEW_* = LCD_PANEL_* minus the four viewable-area setbacks (params.scad).
     //
-    // Pocket sized to LCD_VIEW_X × LCD_VIEW_SL + LCD_FIT_CLR per side.
-    // LCD_VIEW_* = LCD_PANEL_* minus the four viewable-area setbacks.
-    //
-    // In the rotated frame local +Z = inward, local −Z = outward (outer face).
-    // Pocket starts LCD_WIN_SKIN below the outer face and extends inward to
-    // accommodate the panel depth (abs(CLR_ABOVE_RPI)).
-    // Local +Z = outward (sky), local −Z = inward (through slab).
-    // Pocket: start 1 mm past the inner face, stop LCD_WIN_SKIN before the outer face.
+    // In the rotated frame: local +Z = outward (sky), local −Z = inward (slab).
+    // Reference point _lZ is on the outer face; cut starts 1 mm past the inner face
+    // (−_win_d) and overshoots the outer face by 1 mm (+1) for a clean through-hole.
     _wz    = WALL / cos(TILT_ANGLE);
-    _win_d = _wz + abs(CLR_ABOVE_RPI) + 1;   // same origin as original through-hole
+    _win_d = _wz + abs(CLR_ABOVE_RPI) + 1;   // depth to 1 mm past inner face
     translate([WALL + RPI_X0 + RPI_X/2 + LCD_OFS_X, _lY, _lZ])
         rotate([TILT_ANGLE, 0, 0])
             translate([LCD_VIEW_OX  - (LCD_VIEW_X/2  + LCD_FIT_CLR),
@@ -130,6 +125,6 @@ module _cover_cuts() {
                        -_win_d])
                 cube([LCD_VIEW_X  + 2*LCD_FIT_CLR,
                       LCD_VIEW_SL + 2*LCD_FIT_CLR,
-                      _win_d - LCD_WIN_SKIN]);   // stop LCD_WIN_SKIN short of outer face
+                      _win_d + 1]);   // +1 overshoots outer face → full through-hole
 
 }
