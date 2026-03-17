@@ -99,12 +99,6 @@ module _cover_cuts() {
     translate([WALL - 1, OUTER_Y, -1])
         cube([INNER_X + 2, 100, 300]);
 
-    // ── Rotation-clearance fillet ─────────────────────────────────────────────
-    // Front inner-bottom edge: exposed underside of slab at the front (Y≈0).
-    // Catches on the base interior when the cover is opening through the first arc.
-    translate([WALL, 0, COVER_FRONT_Z - WALL/cos(TILT_ANGLE)])
-        rotate([0, 90, 0])
-            cylinder(r=CORNER_R, h=INNER_X, $fn=32);
     // LCD centre in enclosure XY — derived from RPi position + GPIO coupling
     _lY = WALL + RPI_Y0 + RPI_Y/2 + LCD_OFS_Y;   // ≈ 60 mm
     _lZ = COVER_FRONT_Z + (_lY / OUTER_Y) * (COVER_BACK_Z - COVER_FRONT_Z);
