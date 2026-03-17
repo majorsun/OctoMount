@@ -100,8 +100,8 @@ module _lcd_corner_bracket() {
     translate([-_w, 0, 0]) cube([_w + _t, _t, _h]);
     // Wall along Y edge (runs −Y from corner, sits on +X outside of PCB)
     translate([0, -_w, 0]) cube([_t, _w, _h]);
-    // Floor under PCB corner — ledge supporting the bottom face of the PCB layer
-    translate([-_w, -_w, -_t]) cube([_w + _t, _w + _t, _t]);
+    // Floor under PCB corner — ledge supporting the bottom (gravity) face of the PCB layer
+    translate([-_w, -_w, _h]) cube([_w + _t, _w + _t, _t]);
 }
 
 module _lcd_pcb_brackets() {
