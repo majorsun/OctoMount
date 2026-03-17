@@ -103,22 +103,17 @@ module _stylus_snap_clip() {
     _W   = STYLUS_CLIP_W;              // clip width along X
     _gap = STYLUS_D * 0.85;            // snap opening (< OD → flex snap-fit)
 
+    // Ring centre at local Z = _Ri so the inner rim is tangent to the slab
+    // outer face (Z = 0).  No base pad — the ring sits directly on the surface.
+    translate([0, 0, _Ri])
     difference() {
-        union() {
-            // Base pad — bonds clip to slab outer face
-            translate([-_W/2, -(_Ro + _t), 0])
-                cube([_W, 2*(_Ro + _t), _t]);
-            // C-ring — axis along X, centre at local (0, 0, _t + _Ro)
-            translate([0, 0, _t + _Ro])
-                rotate([0, 90, 0])
-                    cylinder(r=_Ro, h=_W, center=true, $fn=48);
-        }
+        rotate([0, 90, 0])
+            cylinder(r=_Ro, h=_W, center=true, $fn=48);
         // Stylus channel
-        translate([0, 0, _t + _Ro])
-            rotate([0, 90, 0])
-                cylinder(r=_Ri, h=_W + 1, center=true, $fn=48);
-        // Snap opening slot — cut from ring centre outward (+Z), width = _gap
-        translate([-_W/2 - 1, -_gap/2, _t + _Ro])
+        rotate([0, 90, 0])
+            cylinder(r=_Ri, h=_W + 1, center=true, $fn=48);
+        // Snap opening slot toward +Z (outward = toward user), width = _gap
+        translate([-_W/2 - 1, -_gap/2, 0])
             cube([_W + 2, _gap, _Ro + 1]);
     }
 }
