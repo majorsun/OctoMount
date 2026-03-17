@@ -123,27 +123,16 @@ module _lcd_pcb_brackets() {
                         mirror([0, sy < 0 ? 1 : 0, 0])
                             _lcd_corner_bracket();
 
-                // Left rail — joins left two floor ledges along Y
-                translate([-LCD_PCB_X/2 - _t, -LCD_PCB_SL/2,
+                // Left rail — floor ledge spanning from left wall inner face to PCB left edge
+                translate([WALL - _lx, -LCD_PCB_SL/2,
                            CLR_ABOVE_RPI + LCD_T])
-                    cube([_t, LCD_PCB_SL, _t]);
+                    cube([_lx - WALL - LCD_PCB_X/2, LCD_PCB_SL, _t]);
 
                 // Right rail — joins right two floor ledges along Y
                 translate([LCD_PCB_X/2, -LCD_PCB_SL/2,
                            CLR_ABOVE_RPI + LCD_T])
                     cube([_t, LCD_PCB_SL, _t]);
 
-                // Left bridges — two horizontal (world-X) beams from left wall to left bracket.
-                // rotate([180+TILT,0,0]) leaves the X axis unchanged, so local-X = world-X offset.
-                // Left wall inner face: local X = WALL − _lx;  bracket outer face: −LCD_PCB_X/2 − _t.
-                let(_bx0 = WALL - _lx, _bx1 = -LCD_PCB_X/2 - _t) {
-                    // Bridge near +Y corner (aligns with outer edge of +Y floor ledge)
-                    translate([_bx0, LCD_PCB_SL/2 - _t, CLR_ABOVE_RPI + LCD_T])
-                        cube([_bx1 - _bx0, _t, _t]);
-                    // Bridge near −Y corner (aligns with inner edge of −Y floor ledge)
-                    translate([_bx0, -LCD_PCB_SL/2, CLR_ABOVE_RPI + LCD_T])
-                        cube([_bx1 - _bx0, _t, _t]);
-                }
 
                 // Right posts — two columns in the tilted local frame, from bracket floor
                 // ledge (local Z = CLR_ABOVE_RPI+LCD_T) down to base floor.
