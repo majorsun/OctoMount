@@ -77,8 +77,8 @@ PORT_ETH_H    = 16.0;   // Ethernet opening height
 LCD_PCB_X  = 98.6;    // LCD PCB width  (along enclosure X) — from manual diagram
 LCD_PCB_SL = 58.08;   // LCD PCB depth along slope (enclosure Y) — from manual diagram
 LCD_T      =  5.0;    // LCD module thickness (perp. to face) — TBD measure
-LCD_ACT_X  = 87.7;    // active area width  (confirmed)
-LCD_ACT_SL = 52.2;    // active area height along slope (confirmed)
+LCD_ACT_X  = 98.6;    // active area width  (confirmed)
+LCD_ACT_SL = 58.08;    // active area height along slope (confirmed)
 // GPIO flex cable connects RPi (rotated 90° CW) to LCD.
 // LCD orientation: chip side faces RPi (screen faces outward through cover window).
 // LCD coupling offsets must be re-derived from physical flex-cable assembly.  TBD.
@@ -92,10 +92,10 @@ LCD_OFS_Y  =  0.0;    // TBD — re-measure with RPi in rotated orientation
 // Setbacks = how much each panel edge is inset from the corresponding PCB edge.
 // All marked TBD — measure the physical module before printing.
 LCD_PANEL_T    =  2.5;   // panel/glass thickness (perp. to face)   — TBD measure
-LCD_SB_LEFT    =  3.5;   // setback: PCB -X edge → panel -X edge     — TBD measure
-LCD_SB_RIGHT   =  3.5;   // setback: PCB +X edge → panel +X edge     — TBD measure
-LCD_SB_FRONT   =  3.5;   // setback: PCB low-slope edge → panel edge  — TBD measure
-LCD_SB_BACK    =  3.5;   // setback: PCB high-slope edge → panel edge — TBD measure
+LCD_SB_LEFT    =  0;   // setback: PCB -X edge → panel -X edge     — TBD measure
+LCD_SB_RIGHT   =  0;   // setback: PCB +X edge → panel +X edge     — TBD measure
+LCD_SB_FRONT   =  0;   // setback: PCB low-slope edge → panel edge  — TBD measure
+LCD_SB_BACK    =  0;   // setback: PCB high-slope edge → panel edge — TBD measure
 
 // Derived panel dimensions and centre offset from PCB centre
 LCD_PANEL_X    = LCD_PCB_X  - LCD_SB_LEFT  - LCD_SB_RIGHT;    // panel width in X
@@ -182,7 +182,7 @@ LCD_FIT_CLR   = 0.5;     // per-side clearance for LCD PCB window
 // Back wall height: shortened so the cover's inner face clears the top, plus an extra
 // 3 mm so the hinge sockets (centred at BHINGE_WZ) sit fully inside the side walls
 // with enough material above them.
-BKWALL_H = MAX_OUTER_Z - WALL / cos(TILT_ANGLE) - 3;  // ≈ 45.8 mm
+BKWALL_H = MAX_OUTER_Z - WALL / cos(TILT_ANGLE) - 4;  // ≈ 44.8 mm
 
 echo(str("Assembly depth (perp. to face): ", ASSEMBLY_DEPTH, " mm"));
 echo(str("LCD tilt from horizontal: ", TILT_ANGLE, "°"));
