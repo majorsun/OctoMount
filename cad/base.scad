@@ -123,16 +123,10 @@ module _lcd_pcb_brackets() {
                         mirror([0, sy < 0 ? 1 : 0, 0])
                             _lcd_corner_bracket();
 
-                // Left rail — two floor ledge strips, one at each bracket X-wall,
-                // spanning from left wall inner face to PCB left edge.
-                let(_bx0 = WALL - _lx, _bw = _lx - WALL - LCD_PCB_X/2) {
-                    // Front strip — aligns with +Y bracket wall outer face
-                    translate([_bx0, LCD_PCB_SL/2, CLR_ABOVE_RPI + LCD_T])
-                        cube([_bw, _t, _t]);
-                    // Back strip — aligns with −Y bracket wall outer face
-                    translate([_bx0, -LCD_PCB_SL/2 - _t, CLR_ABOVE_RPI + LCD_T])
-                        cube([_bw, _t, _t]);
-                }
+                // Left rail — floor ledge from left wall to PCB left edge,
+                // Y spans outer face of −Y wall to outer face of +Y wall.
+                translate([WALL - _lx, -LCD_PCB_SL/2 - _t, CLR_ABOVE_RPI + LCD_T])
+                    cube([_lx - WALL - LCD_PCB_X/2, LCD_PCB_SL + 2*_t, _t]);
 
                 // Right rail — joins right two floor ledges along Y
                 translate([LCD_PCB_X/2, -LCD_PCB_SL/2,
