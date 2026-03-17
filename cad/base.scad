@@ -144,23 +144,18 @@ module _lcd_pcb_brackets() {
                     translate([_bx0, -LCD_PCB_SL/2, CLR_ABOVE_RPI + LCD_T])
                         cube([_bx1 - _bx0, _t, _t]);
                 }
-            }
 
-        // Right posts — two vertical (world-Z) columns from base floor to right bracket.
-        // World X = _lx + LCD_PCB_X/2 (unchanged by X-axis rotation).
-        // World Y and Z of each corner's floor ledge derived from the full transform:
-        //   world_y = _ly − y_loc·cos(T) + z_loc·sin(T)
-        //   world_z = BASE_OUTER_Z + _lfz − y_loc·sin(T) − z_loc·cos(T)
-        let(_sin_t = sin(TILT_ANGLE),
-            _cos_t = cos(TILT_ANGLE),
-            _zc    = CLR_ABOVE_RPI + LCD_T,   // local Z of floor ledge
-            _px    = _lx + LCD_PCB_X/2)       // world X of right bracket inner face
-            for (sy = [-1, 1])
-                let(_yl       = sy * LCD_PCB_SL/2,
-                    _wy       = _ly - _yl * _cos_t + _zc * _sin_t,
-                    _wz_ledge = _lfz - _yl * _sin_t - _zc * _cos_t)
-                translate([_px, _wy - _t, 0])
-                    cube([2*_t, 2*_t, _wz_ledge]);
+                // Right posts — two columns in the tilted local frame, from bracket floor
+                // ledge (local Z = CLR_ABOVE_RPI+LCD_T) down to base floor.
+                // Local Z of base floor at corner Y: (_lfz − y_l·sinT) / cosT.
+                let(_sin_t = sin(TILT_ANGLE), _cos_t = cos(TILT_ANGLE),
+                    _z_ledge = CLR_ABOVE_RPI + LCD_T)
+                    for (sy = [-1, 1])
+                        let(_yl      = sy * LCD_PCB_SL/2,
+                            _z_floor = (_lfz - _yl * _sin_t) / _cos_t)
+                        translate([LCD_PCB_X/2, _yl - _t, _z_ledge])
+                            cube([2*_t, 2*_t, _z_floor - _z_ledge]);
+            }
     }
 }
 
