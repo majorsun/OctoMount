@@ -131,7 +131,7 @@ FAN_T    =  7.0;   // fan thickness  — TBD
 // ── Buck converter LM2596 ─────────────────────────────────────
 BUCK_X   = 35.0;   // LM2596 PCB width in enclosure X  (measured)
 BUCK_Y   = 56.0;   // LM2596 PCB depth in enclosure Y  (measured)
-BUCK_Z   = 17.0;   // LM2596 PCB + component height    (TBD confirm)
+BUCK_Z   = 12.0;   // LM2596 PCB + component height    (measured)
 BUCK_HOLE_X = 28.0;   // screw hole span in X (measured)
 BUCK_HOLE_Y = 50.0;   // screw hole span in Y (measured)
 BUCK_HOLE_D  =  3.5;  // screw hole diameter  (measured)
