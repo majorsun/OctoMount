@@ -51,22 +51,20 @@ if (SHOW_BASE)
         base();
 
 // ── Ghost: LM2596 buck converter (right of RPi, on base floor) ─
-// STL bbox: X(-2.418..48.466) Y(22.010..37.796) Z(26.226..50.512)
-// rotate([0,0,90]): long axis (50.9mm STL-X) → enclosure Y (along right side wall).
-// rotate([0,90,0]):  component height (STL-Z, 24.3mm) → world +X (toward right wall);
-//                   PCB short width  (STL-Y, 15.8mm) → world Z  (height = 15.8mm).
-// Mapping: STL(x,y,z) → world(z+TX, x+TY, y+TZ)
-//   TX = OUTER_X−WALL−BUCK_WALL_GAP−50.512 = 89.5   TY = WALL+BUCK_Y0+2.418 = 6.4
-//   TZ = BASE_OUTER_Z+BUCK_FLOOR_H−22.010 = −14.0
-// Result: 2mm gap from right wall; PCB solder face at BASE_OUTER_Z+BUCK_FLOOR_H; 4 floor bosses.
+// Cube BUCK_X × BUCK_Y × BUCK_Z with four BUCK_HOLE_D clearance holes at boss positions.
+// Right edge 2 mm from right wall inner face; PCB bottom at BASE_OUTER_Z + BUCK_FLOOR_H.
 if (SHOW_BUCK)
     color(BUCK_COL)
-        translate([OUTER_X - WALL - BUCK_WALL_GAP - 50.512,
-                   WALL + BUCK_Y0 + 2.418,
-                   BASE_OUTER_Z + BUCK_FLOOR_H - 22.010])
-            rotate([0, 90, 0])
-                rotate([0, 0, 90])
-                    import("../reference/6811d70143b4d50b11a59159.stl", convexity=10);
+        translate([OUTER_X - WALL - BUCK_WALL_GAP - BUCK_X,
+                   WALL + BUCK_Y0,
+                   BASE_OUTER_Z + BUCK_FLOOR_H])
+            difference() {
+                cube([BUCK_X, BUCK_Y, BUCK_Z]);
+                for (bx = [(BUCK_X - BUCK_HOLE_X)/2, (BUCK_X + BUCK_HOLE_X)/2],
+                     by = [(BUCK_Y - BUCK_HOLE_Y)/2, (BUCK_Y + BUCK_HOLE_Y)/2])
+                    translate([bx, by, -0.05])
+                        cylinder(d=BUCK_HOLE_D, h=BUCK_Z + 0.1, $fn=16);
+            }
 
 // ── Debug: red spheres at boss-tip world positions ────────────
 // Uses the exact same transform chain as base.scad bosses → guaranteed correct.
