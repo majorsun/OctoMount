@@ -96,12 +96,13 @@ module _lcd_corner_bracket() {
     _t = LCD_BRACKET_T;
     _w = LCD_BRACKET_W;
     _h = LCD_T - LCD_PANEL_T;   // PCB layer thickness
-    // Wall along X edge (runs −X from corner, sits on +Y outside of PCB)
-    translate([-_w, 0, 0]) cube([_w + _t, _t, _h]);
-    // Wall along Y edge (runs −Y from corner, sits on +X outside of PCB)
-    translate([0, -_w, 0]) cube([_t, _w, _h]);
-    // Floor under PCB corner — ledge supporting the bottom (gravity) face of the PCB layer
-    translate([-_w, -_w, _h]) cube([_w + _t, _w + _t, _t]);
+    _g = LCD_BRACKET_GAP;       // clearance from bracket wall inner face to PCB edge
+    // Wall along X edge — shifted outward by gap from PCB +Y edge
+    translate([-_w, _g, 0]) cube([_w + _t, _t, _h]);
+    // Wall along Y edge — shifted outward by gap from PCB +X edge
+    translate([_g, -_w, 0]) cube([_t, _w, _h]);
+    // Floor ledge — extended to reach under both shifted walls
+    translate([-_w, -_w, _h]) cube([_w + _t + _g, _w + _t + _g, _t]);
 }
 
 module _lcd_pcb_brackets() {

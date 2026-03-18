@@ -120,8 +120,9 @@ LCD_VIEW_OSL = LCD_PANEL_OSL + (LCD_VIEW_SB_FRONT - LCD_VIEW_SB_BACK)   / 2;
 LCD_WIN_SKIN = 0.5;  // cover thickness over the LCD setback area (step shoulder depth from outer face)
 
 // ── LCD PCB corner brackets ───────────────────────────────────
-LCD_BRACKET_T = 1.5;   // bracket wall thickness
-LCD_BRACKET_W = 5.0;   // bracket arm length along each PCB edge
+LCD_BRACKET_T   = 1.5;   // bracket wall thickness
+LCD_BRACKET_W   = 5.0;   // bracket arm length along each PCB edge
+LCD_BRACKET_GAP = 0.3;   // clearance between bracket inner wall face and PCB edge
 
 
 // ── Fan (in MPI4008 kit sandwich) ────────────────────────────
