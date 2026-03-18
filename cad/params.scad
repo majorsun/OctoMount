@@ -129,9 +129,12 @@ FAN_SIZE = 30.0;   // fan square side — TBD
 FAN_T    =  7.0;   // fan thickness  — TBD
 
 // ── Buck converter LM2596 ─────────────────────────────────────
-BUCK_X   = 21.0;   // LM2596 PCB width in enclosure X direction
-BUCK_Y   = 43.0;   // LM2596 PCB depth in enclosure Y direction
-BUCK_Z   = 17.0;   // LM2596 PCB + component height in Z (including potentiometer)
+BUCK_X   = 35.0;   // LM2596 PCB width in enclosure X  (measured)
+BUCK_Y   = 56.0;   // LM2596 PCB depth in enclosure Y  (measured)
+BUCK_Z   = 17.0;   // LM2596 PCB + component height    (TBD confirm)
+BUCK_HOLE_X = 28.0;   // screw hole span in X (measured)
+BUCK_HOLE_Y = 50.0;   // screw hole span in Y (measured)
+BUCK_HOLE_D  =  3.5;  // screw hole diameter  (measured)
 
 // ── Full-size SD slot (extension cable, left wall) ───────────
 SD_W      = 30.4;  // slot opening width in Y (measured from SD holder)
@@ -168,21 +171,19 @@ ASSEMBLY_DEPTH = STOFF_H;  // cover interior depth — TBD: extend by heatsink h
 RPI_X0 = (LCD_PCB_X + 2*CLR - RPI_X) / 2;   // = 7.8 mm (fixed — keeps RPi position relative to left wall)
 RPI_Y0 = CLR;                      // Y offset of RPi front edge from inner front wall
 
-// ── Buck converter (in base wiring slab, beside RPi footprint) ─
-BUCK_X0 = RPI_X0 + RPI_X + CLR;   // X start of buck  — TBD fit check
-BUCK_Y0 = CLR;
-// M3 floor bosses — vertical posts from base slab; PCB mounting holes are STL Y-axis.
-// Orientation: rotate([0,90,0])∘rotate([0,0,90]); STL(x,y,z)→world(z+TX, x+TY, y+TZ).
-// PCB lies flat in world XY (normal = world Z).  4 hole positions from STL analysis:
-//   (STL_x≈0,    STL_z≈28.0) and (STL_x≈0,    STL_z≈48.7) — front pair
-//   (STL_x≈46.4, STL_z≈28.0) and (STL_x≈46.4, STL_z≈48.7) — back  pair
-// PCB rests on boss tops at world Z = BASE_OUTER_Z + BUCK_FLOOR_H.
-BUCK_WALL_GAP = 2.0;   // clearance from right wall inner face to component tops
-BUCK_FLOOR_H  = 4.0;   // floor boss height — PCB rests at BASE_OUTER_Z + BUCK_FLOOR_H
-BUCK_FLOOR_X1 = INNER_X + WALL - BUCK_WALL_GAP - (50.512 - 28.0);  // ≈ 117.5 mm (solder side)
-BUCK_FLOOR_X2 = INNER_X + WALL - BUCK_WALL_GAP - (50.512 - 48.7);  // ≈ 138.2 mm (component side)
-BUCK_FLOOR_Y1 = WALL + BUCK_Y0 + 2.418;          // ≈  6.4 mm (front pair, STL_x≈0)
-BUCK_FLOOR_Y2 = WALL + BUCK_Y0 + 2.418 + 46.44;  // ≈ 52.9 mm (back  pair, STL_x≈46.4)
+// ── Buck converter floor bosses ────────────────────────────────
+// PCB lies flat (56 mm along Y, 35 mm along X). Right edge of PCB sits
+// BUCK_WALL_GAP mm from right wall inner face.  Setbacks: 3 mm in Y, 3.5 mm in X.
+BUCK_X0 = RPI_X0 + RPI_X + CLR;   // X of PCB left edge (≈ 93.8 mm) — TBD fit check
+BUCK_Y0 = CLR;                     // Y gap from inner front wall to PCB front edge
+BUCK_WALL_GAP = 2.0;   // clearance from right wall inner face to PCB right edge
+BUCK_FLOOR_H  = 4.0;   // boss height — PCB solder face at BASE_OUTER_Z + BUCK_FLOOR_H
+// Boss X: right pair setback (BUCK_X - BUCK_HOLE_X)/2 from right PCB edge
+BUCK_FLOOR_X2 = OUTER_X - WALL - BUCK_WALL_GAP - (BUCK_X - BUCK_HOLE_X)/2;  // right pair
+BUCK_FLOOR_X1 = BUCK_FLOOR_X2 - BUCK_HOLE_X;                                  // left  pair
+// Boss Y: setback (BUCK_Y - BUCK_HOLE_Y)/2 from front/back PCB edges
+BUCK_FLOOR_Y1 = WALL + BUCK_Y0 + (BUCK_Y - BUCK_HOLE_Y)/2;  // front pair
+BUCK_FLOOR_Y2 = BUCK_FLOOR_Y1 + BUCK_HOLE_Y;                 // back  pair
 
 // ── Outer dimensions ──────────────────────────────────────────
 OUTER_X      = INNER_X + 2*WALL;   // = 145 mm
