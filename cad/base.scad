@@ -68,13 +68,7 @@ module _base_solid() {
             rotate([TILT_ANGLE, 0, 0])
                 rpi_boss(_BH_C + BOSS_YS[0] * sin(TILT_ANGLE));
 
-    // Back RPi bosses (BOSS_YS[1]) — cube blocks fused to back wall, top face at RPi mounting plane.
-    for (bx = BOSS_XS)
-        translate([bx, BOSS_YS[1], BASE_OUTER_Z])
-            rotate([TILT_ANGLE, 0, 0])
-                rpi_back_block(_BH_C + BOSS_YS[1] * sin(TILT_ANGLE), BOSS_YS[1]);
-
-    // Back-boss connecting plate + ribs.
+    // Back RPi mounting plate + ribs (replaces individual back bosses).
     // Plate: same tilted frame as rpi_back_block, spans full X range of both bosses.
     // Ribs: world-space vertical fins from base floor to plate bottom.
     //   Rib 1 — between M5 holes (MOUNT_H1[0]=10, MOUNT_H2[0]=30), 3.75 mm clear of each.
@@ -258,4 +252,12 @@ module _base_cuts() {
         sphere(r = BHINGE_R + BHINGE_CLR, $fn=32);
 
     // M3 tap holes are already inside m3_boss() — no separate cut needed.
+
+    // ── M2.5 tap holes in back plate (RPi rear mounting holes) ──
+    // Same tilted-frame position as the former rpi_back_block boss tips.
+    for (bx = BOSS_XS)
+        translate([bx, BOSS_YS[1], BASE_OUTER_Z])
+            rotate([TILT_ANGLE, 0, 0])
+                translate([0, 0, _BH_C + BOSS_YS[1] * sin(TILT_ANGLE) - M25_BOSS_DEPTH])
+                    cylinder(d=M25_CLEAR, h=M25_BOSS_DEPTH + 0.1, $fn=16);
 }
