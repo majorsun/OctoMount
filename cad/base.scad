@@ -74,6 +74,31 @@ module _base_solid() {
             rotate([TILT_ANGLE, 0, 0])
                 rpi_back_block(_BH_C + BOSS_YS[1] * sin(TILT_ANGLE), BOSS_YS[1]);
 
+    // Back-boss connecting plate + ribs.
+    // Plate: same tilted frame as rpi_back_block, spans full X range of both bosses.
+    // Ribs: world-space vertical fins from base floor to plate bottom.
+    //   Rib 1 — between M5 holes (MOUNT_H1[0]=10, MOUNT_H2[0]=30), 3.75 mm clear of each.
+    //   Rib 2 — right of BKWALL_WIN2 right edge (X=BKWALL_WIN2_X0+BKWALL_WIN2_W), WALL clear.
+    let(_by = BOSS_YS[1],
+        _hb = _BH_C + BOSS_YS[1] * sin(TILT_ANGLE),
+        _ts = max(WALL, M25_BOSS_DEPTH),
+        _D  = (OUTER_Y - WALL - BOSS_YS[1]) / cos(TILT_ANGLE) + WALL + M25_BOSS_R,
+        _x0 = BOSS_XS[0] - M25_BOSS_R,
+        _x1 = BOSS_XS[1] + M25_BOSS_R,
+        _pz = BASE_OUTER_Z + (_hb - _ts) * cos(TILT_ANGLE)) {  // plate bottom world Z
+
+        translate([_x0, _by, BASE_OUTER_Z])
+            rotate([TILT_ANGLE, 0, 0])
+                translate([0, -M25_BOSS_R, _hb - _ts])
+                    cube([_x1 - _x0, _D, _ts]);
+
+        translate([(MOUNT_H1[0] + MOUNT_H2[0]) / 2 - WALL/2, _by, 0])
+            cube([WALL, OUTER_Y - WALL - _by, _pz]);
+
+        translate([BKWALL_WIN2_X0 + BKWALL_WIN2_W + WALL, _by, 0])
+            cube([WALL, OUTER_Y - WALL - _by, _pz]);
+    }
+
     // Buck converter M3 floor bosses — 4-post pattern, vertical from base slab.
     // PCB rests on boss tops; screw from above through PCB into tapped boss.
     for (bx = [BUCK_FLOOR_X1, BUCK_FLOOR_X2], by = [BUCK_FLOOR_Y1, BUCK_FLOOR_Y2])
