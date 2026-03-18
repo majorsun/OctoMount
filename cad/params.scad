@@ -179,7 +179,7 @@ BUCK_Y0 = 5.0;                     // Y gap from inner front wall to PCB front e
 BUCK_WALL_GAP = 2.0;   // clearance from right wall inner face to PCB right edge
 BUCK_FLOOR_H  = 4.0;   // boss height — PCB solder face at BASE_OUTER_Z + BUCK_FLOOR_H
 // Boss X: right pair setback (BUCK_X - BUCK_HOLE_X)/2 from right PCB edge
-BUCK_FLOOR_X2 = OUTER_X - WALL - BUCK_WALL_GAP - (BUCK_X - BUCK_HOLE_X)/2;  // right pair
+BUCK_FLOOR_X2 = INNER_X + WALL - BUCK_WALL_GAP - (BUCK_X - BUCK_HOLE_X)/2;  // right pair (= OUTER_X − WALL − …)
 BUCK_FLOOR_X1 = BUCK_FLOOR_X2 - BUCK_HOLE_X;                                  // left  pair
 // Boss Y: setback (BUCK_Y - BUCK_HOLE_Y)/2 from front/back PCB edges
 BUCK_FLOOR_Y1 = WALL + BUCK_Y0 + (BUCK_Y - BUCK_HOLE_Y)/2;  // front pair
