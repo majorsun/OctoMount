@@ -150,24 +150,38 @@ module _lcd_pcb_brackets() {
                            CLR_ABOVE_RPI + LCD_T])
                     cube([_t, LCD_PCB_SL, _t]);
 
+                // Front-right floor ledge extension — connects bracket to moved front post.
+                // Spans from new post inner face (local X) to PCB right ledge outer edge.
+                let(_w = LCD_BRACKET_W,
+                    _px_new = OUTER_X - WALL - BUCK_WALL_GAP - BUCK_X - CLR - (_w + _t))
+                    translate([_px_new - _lx, LCD_PCB_SL/2 - _w, CLR_ABOVE_RPI + LCD_T])
+                        cube([LCD_PCB_X/2 + _t - (_px_new - _lx), _w + _t, _t]);
 
             }
 
-        // Right posts — truly vertical (world Z) columns from base floor to bracket floor ledge.
-        // X unchanged by X-axis rotation: post right edge flush with right rail outer face.
-        // World Y and Z computed from full transform: y_w = _ly − y_l·cosT + z_l·sinT
-        //                                            z_w = _lfz − y_l·sinT − z_l·cosT
+        // Front right post — moved left to clear RPi right edge and buck converter.
+        // Post right edge = buck left edge − CLR; post left edge clears RPi right edge.
         let(_sin_t = sin(TILT_ANGLE), _cos_t = cos(TILT_ANGLE),
-            _zc = CLR_ABOVE_RPI + LCD_T,
-            _w  = LCD_BRACKET_W,
-            _px = _lx + LCD_PCB_X/2 - _w)  // inner X flush with corner ledge inner X; outer X flush with rail outer face
-            for (sy = [-1, 1])
-                let(_yl = sy * LCD_PCB_SL/2,
-                    _wy = _ly - _yl * _cos_t + _zc * _sin_t,
-                    _wz = _lfz - _yl * _sin_t - _zc * _cos_t,
-                    _ty = _wy - (sy > 0 ? _t : _w))  // outer Y fixed; inner Y flush with corner ledge inner Y
-                translate([_px, _ty, 0])
-                    cube([_w + _t, _w + _t, _wz]);
+            _zc    = CLR_ABOVE_RPI + LCD_T,
+            _w     = LCD_BRACKET_W,
+            _px_new = OUTER_X - WALL - BUCK_WALL_GAP - BUCK_X - CLR - (_w + _t),
+            _wy    = _ly - LCD_PCB_SL/2 * _cos_t + _zc * _sin_t,
+            _wz    = _lfz - LCD_PCB_SL/2 * _sin_t - _zc * _cos_t,
+            _ty    = _wy - _t)
+            translate([_px_new, _ty, 0])
+                cube([_w + _t, _w + _t, _wz]);
+
+        // Back-wall bridge — replaces removed back right post.
+        // Horizontal beam from outer face of back-right bracket corner to inner back wall.
+        // Z: above cable window (BKWALL_WIN_ZHI) to top of back wall (BKWALL_H).
+        let(_cos_t = cos(TILT_ANGLE), _sin_t = sin(TILT_ANGLE),
+            _w      = LCD_BRACKET_W,
+            _zc     = CLR_ABOVE_RPI + LCD_T,
+            _yl_out = -(LCD_PCB_SL/2 + _t),                      // outer local Y of back-right bracket
+            _bry    = _ly - _yl_out * _cos_t + _zc * _sin_t,     // world Y of bracket outer face
+            _brx    = _lx + LCD_PCB_X/2 - _w)                    // inner X (= old back post inner X)
+            translate([_brx, _bry, BKWALL_WIN_ZHI])
+                cube([_w + _t, OUTER_Y - WALL - _bry, BKWALL_H - BKWALL_WIN_ZHI]);
     }
 }
 
