@@ -175,7 +175,7 @@ RPI_Y0 = CLR;                      // Y offset of RPi front edge from inner fron
 // PCB lies flat (56 mm along Y, 35 mm along X). Right edge of PCB sits
 // BUCK_WALL_GAP mm from right wall inner face.  Setbacks: 3 mm in Y, 3.5 mm in X.
 BUCK_X0 = RPI_X0 + RPI_X + CLR;   // X of PCB left edge (≈ 93.8 mm) — TBD fit check
-BUCK_Y0 = CLR;                     // Y gap from inner front wall to PCB front edge
+BUCK_Y0 = 5.0;                     // Y gap from inner front wall to PCB front edge (back edge 4 mm from inner back wall)
 BUCK_WALL_GAP = 2.0;   // clearance from right wall inner face to PCB right edge
 BUCK_FLOOR_H  = 4.0;   // boss height — PCB solder face at BASE_OUTER_Z + BUCK_FLOOR_H
 // Boss X: right pair setback (BUCK_X - BUCK_HOLE_X)/2 from right PCB edge
