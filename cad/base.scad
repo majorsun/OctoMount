@@ -82,7 +82,7 @@ module _base_solid() {
     let(_by = BOSS_YS[1],
         _hb = _BH_C + BOSS_YS[1] * sin(TILT_ANGLE),
         _ts = max(WALL, M25_BOSS_DEPTH),
-        _D  = (OUTER_Y - WALL - BOSS_YS[1]) / cos(TILT_ANGLE) + WALL + M25_BOSS_R,
+        _D  = (OUTER_Y - _by + (_hb - _ts) * sin(TILT_ANGLE)) / cos(TILT_ANGLE) + M25_BOSS_R,
         _x0 = BOSS_XS[0] - M25_BOSS_R,
         _x1 = BOSS_XS[1] + M25_BOSS_R,
         _pz = BASE_OUTER_Z + (_hb - _ts) * cos(TILT_ANGLE)) {  // plate bottom world Z
