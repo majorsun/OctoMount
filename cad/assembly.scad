@@ -7,7 +7,7 @@
 // Flags:
 //   SHOW_BASE      = 1  → render the base
 //   SHOW_COVER     = 0  → render the cover (semi-transparent)
-//   EXPLODE        = 1  → exploded view (cover lifted off base)
+//   EXPLODE        = 0  → exploded view (cover lifted off base)
 //   SHOW_RPI       = 1  → ghost RPi PCB inside
 //   SHOW_LCD       = 1  → ghost LCD module (PCB + panel) inside
 //   SHOW_BUCK      = 1  → ghost LM2596 buck converter (right of RPi)
@@ -86,7 +86,6 @@ if (SHOW_COVER)
 
 // ── Ghost internals — RPi + LCD parallel to inner angled face ─
 if (SHOW_RPI || SHOW_LCD) {
-    _wz  = WALL / cos(TILT_ANGLE);
     _tan = tan(TILT_ANGLE);
 
     // RPi PCB centre in enclosure XY
@@ -97,9 +96,13 @@ if (SHOW_RPI || SHOW_LCD) {
     _lx_ctr = _rx_ctr + LCD_OFS_X;
     _ly_ctr = _ry_ctr + LCD_OFS_Y;
 
-    // Inner face Z at each block's Y centre
-    _rface_z = COVER_FRONT_Z - _wz + _ry_ctr * _tan;
-    _lface_z = COVER_FRONT_Z - _wz + _ly_ctr * _tan;
+    // Pivot Z anchored to boss-tip plane so RPi bare-bottom sits flush on boss tops.
+    // Boss tips lie at world Z = BASE_OUTER_Z + (_BH_C + by·sin θ)·cos θ.
+    // Solving for the pivot that puts local Z = STOFF_H at that world Z:
+    //   pivot_z = (_BH_C + STOFF_H)/cos θ + Y_centre·tan θ
+    _boss_face_z = (_BH_C + STOFF_H) / cos(TILT_ANGLE);
+    _rface_z = _boss_face_z + _ry_ctr * _tan;
+    _lface_z = _boss_face_z + _ly_ctr * _tan;
 
     // rotate([180+TILT_ANGLE,0,0]):  local +Z into interior, local −Z toward screen
     // RPi PCB: spans local Z = (STOFF_H−RPI_PCB_T) … STOFF_H
@@ -114,7 +117,8 @@ if (SHOW_RPI || SHOW_LCD) {
                         // translate Z by STOFF_H+3.0 so PCB bare-bottom lands at local Z=STOFF_H.
                         translate([0, 0, STOFF_H + 3.0])
                             mirror([0, 0, 1])
-                                import("../reference/Raspberry_Pi_4_B_3D_Model.stl", convexity=10);
+                                mirror([1, 0, 0])
+                                    import("../reference/Raspberry_Pi_4_B_3D_Model.stl", convexity=10);
 
     // LCD PCB layer: chip side faces RPi; spans local Z = CLR_ABOVE_RPI+LCD_PANEL_T … CLR_ABOVE_RPI+LCD_T
     if (SHOW_LCD)

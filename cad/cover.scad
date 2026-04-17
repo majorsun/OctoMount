@@ -1,12 +1,13 @@
 // ============================================================
 // OctoMount — cover.scad  (2-piece redesign, rev 7)
 //
-// The Cover fits BETWEEN the base side walls (X = WALL..OUTER_X−WALL = INNER_X wide).
+// The Cover fills the enclosure interior (X = WALL_S..OUTER_X−WALL_S).
+// Boss-pad relief cuts step it back to X = WALL at the hinge pad zone.
 // Its back edge sits over the base back wall, not flush with the outside.
 //
-//   1. Front wall  — X = WALL..OUTER_X−WALL, Y = 0..WALL, height = COVER_FRONT_Z
+//   1. Front wall  — X = WALL_S..OUTER_X−WALL_S, Y = 0..WALL, height = COVER_FRONT_Z
 //   2. Angled top slab — same X span, full Y depth, WALL thick ⟂ to face
-//   3. Two ball stubs  — protrude from each side face into the base side-wall sockets
+//   3. Two ball stubs  — protrude from cover side face into base boss-pad sockets
 //
 // Side walls and back wall are on the base (rev 4+).
 //
@@ -36,65 +37,98 @@ include <params.scad>
 cover();
 
 module cover() {
-    difference() {
-        union() {
-            _cover_top_slab();
-            _cover_front_wall();
-            _cover_hinge_balls();
+    // Y where the angled slab outer face reaches COVER_FLAT_Z — start of flat top.
+    _y_cut = (COVER_FLAT_Z - COVER_FRONT_Z) * OUTER_Y / (COVER_BACK_Z - COVER_FRONT_Z);
+    union() {
+        // ── Angled slab + front wall, trimmed at flat boundary ─────────────
+        difference() {
+            union() {
+                _cover_top_slab();
+                _cover_front_wall();
+            }
+            _cover_trim_cuts();
+            _lcd_window_cuts();
+            // Remove angled slab above COVER_FLAT_Z (flat top boundary cut)
+            translate([-1, _y_cut - 0.01, COVER_FLAT_Z])
+                cube([OUTER_X + 2, OUTER_Y - _y_cut + 21, 200]);
         }
-        _cover_trim_cuts();
-        _lcd_window_cuts();
+        // ── Flat top slab + hinge pins/axle (outside angled-slab cuts) ─────
+        difference() {
+            union() {
+                translate([WALL_S, _y_cut, COVER_FLAT_Z - WALL])
+                    cube([OUTER_X - 2*WALL_S, OUTER_Y - _y_cut, WALL]);
+                _cover_hinge_pins();
+            }
+            // Back clip: nothing beyond OUTER_Y
+            translate([-1, OUTER_Y, -1])
+                cube([OUTER_X + 2, 100, 300]);
+            // Rear top edge rounding — corner_cut = quadrant_cube − quadrant_cylinder,
+            // both centred at (OUTER_Y−r, COVER_FLAT_Z−r) in cover-local coordinates.
+            difference() {
+                translate([WALL_S - 0.01, OUTER_Y - REAR_CORNER_R, COVER_FLAT_Z - REAR_CORNER_R])
+                    cube([OUTER_X - 2*WALL_S + 0.02, REAR_CORNER_R + 1, REAR_CORNER_R + 1]);
+                translate([WALL_S - 0.01, OUTER_Y - REAR_CORNER_R, COVER_FLAT_Z - REAR_CORNER_R])
+                    rotate([0, 90, 0])
+                        cylinder(r=REAR_CORNER_R, h=OUTER_X - 2*WALL_S + 0.02, $fn=32);
+            }
+        }
     }
 }
 
-// ── Angled top slab (INNER_X wide, fits between side walls) ──
+// ── Angled top slab (fills between thin side walls, WALL_S based) ──
 // Hull between front and back thin strips gives a parallelogram slab
 // whose thickness measured perpendicular to the surface is exactly WALL.
-//   X span: WALL .. OUTER_X−WALL  (= INNER_X, between the side walls)
+//   X span: WALL_S .. OUTER_X−WALL_S  (flush with thin side wall inner faces)
 //   Front edge: outer face at Z = COVER_FRONT_Z, inner face at COVER_FRONT_Z − _wz
 //   Back edge:  outer face at Z = COVER_BACK_Z,  inner face at COVER_BACK_Z  − _wz
 module _cover_top_slab() {
-    _wz = WALL / cos(TILT_ANGLE);
+    _wz  = WALL / cos(TILT_ANGLE);
+    _dz  = FRONT_EXT * tan(TILT_ANGLE);  // Z drop at front extension
     hull() {
-        translate([WALL, 0, COVER_FRONT_Z - _wz])
-            cube([INNER_X, 0.01, _wz]);
-        translate([WALL, OUTER_Y - 0.01, COVER_BACK_Z - _wz])
-            cube([INNER_X, 0.01, _wz]);
+        translate([WALL_S, -FRONT_EXT, COVER_FRONT_Z - _wz - _dz])
+            cube([OUTER_X - 2*WALL_S, 0.01, _wz]);
+        translate([WALL_S, OUTER_Y - 0.01, COVER_BACK_Z - _wz])
+            cube([OUTER_X - 2*WALL_S, 0.01, _wz]);
     }
 }
 
-// ── Front wall (lip closing the enclosure front face, between side walls) ───
+// ── Front wall (lip closing the enclosure front face, flush with thin side walls) ───
+// Shifted forward by FRONT_EXT so its inner face clears the RPi front edge by CLR.
 module _cover_front_wall() {
-    translate([WALL, 0, 0])
-        cube([INNER_X, WALL, COVER_FRONT_Z]);
+    translate([WALL_S, -FRONT_EXT, 0])
+        cube([OUTER_X - 2*WALL_S, WALL, COVER_FRONT_Z]);
 }
 
-// ── Ball-hinge ridge (two half-spheres joined by a cylinder along the hinge axis) ──
-// The cylinder has the same radius as the balls and runs along the hinge axis between
-// them, creating one continuous rounded ridge across the full back edge of the cover.
-// When the cover flips open this convex surface rotates smoothly against the base.
-module _cover_hinge_balls() {
-    _bz = BHINGE_WZ - BASE_OUTER_Z;   // cover-local Z of hinge axis (= 44.5 mm)
-    // Left half-sphere
-    translate([WALL,         BHINGE_Y, _bz])  sphere(r=BHINGE_R, $fn=32);
-    // Right half-sphere
-    translate([OUTER_X-WALL, BHINGE_Y, _bz])  sphere(r=BHINGE_R, $fn=32);
-    // Connecting cylinder — same axis, same radius, spans between the two balls
-    translate([WALL, BHINGE_Y, _bz])
+// ── Pin-hinge stubs + connecting axle (fused with cover) ──────
+// Left and right pins protrude outward into matching base side-wall holes.
+// Axle runs along X between both pin bases, fused to the cover slab.
+module _cover_hinge_pins() {
+    _bz = BHINGE_WZ - BASE_OUTER_Z;   // cover-local Z of hinge axis
+    // Left pin — from cover left face (X=WALL_S) outward in −X
+    translate([WALL_S, BHINGE_Y, _bz])
+        rotate([0, -90, 0])
+            cylinder(r=BHINGE_R, h=BHINGE_PIN_L, $fn=32);
+    // Right pin — from cover right face (X=OUTER_X-WALL_S) outward in +X
+    translate([OUTER_X - WALL_S, BHINGE_Y, _bz])
         rotate([0, 90, 0])
-            cylinder(r=BHINGE_R, h=INNER_X, $fn=32);
+            cylinder(r=BHINGE_R, h=BHINGE_PIN_L, $fn=32);
+    // Axle — spans full interior width, connecting both pin bases, fused with cover
+    translate([WALL_S, BHINGE_Y, _bz])
+        rotate([0, 90, 0])
+            cylinder(r=BHINGE_R, h=OUTER_X - 2*WALL_S, $fn=32);
 }
 
 // ── Trim cuts ─────────────────────────────────────────────────
 module _cover_trim_cuts() {
-    // Yellow cut: everything above the slab outer face plane
-    translate([WALL - 1, 0, COVER_FRONT_Z])
+    // Yellow cut: everything above the slab outer face plane (starts at extended front edge)
+    translate([-1, -FRONT_EXT, COVER_FRONT_Z - FRONT_EXT * tan(TILT_ANGLE)])
         rotate([TILT_ANGLE, 0, 0])
-            cube([INNER_X + 2, OUTER_Y + 20, 200]);
+            cube([OUTER_X + 2, OUTER_Y + FRONT_EXT + 20, 200]);
 
     // Red cut: everything beyond Y > OUTER_Y
-    translate([WALL - 1, OUTER_Y, -1])
-        cube([INNER_X + 2, 100, 300]);
+    translate([-1, OUTER_Y, -1])
+        cube([OUTER_X + 2, 100, 300]);
+
 }
 
 // ── LCD window cuts (applied to everything incl. clips) ───────

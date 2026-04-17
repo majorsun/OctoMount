@@ -33,7 +33,8 @@ M5_CS_D   = 9.5;   // M5 flat-head countersink OD (matches 4040 spec)
 M5_CS_H   = 2.0;   // M5 countersink depth
 
 // ── Shell ─────────────────────────────────────────────────────
-WALL     = 3.0;   // nominal wall thickness
+WALL     = 3.0;   // nominal wall — clearances, hinge boss, cover geometry
+WALL_S   = 2.0;   // structural side + back wall thickness (thinner than hinge boss)
 CLR      = 1.0;   // per-side assembly clearance
 CORNER_R = 3.0;   // outer corner rounding radius
 $fa = 3;  $fs = 0.5;
@@ -50,7 +51,7 @@ $fa = 3;  $fs = 0.5;
 //   GPIO long edge          → toward cover front (−Y face)   — internal, no wall exit
 RPI_X    = 85.0;   // PCB long  axis → enclosure X (rotated 90° CW)
 RPI_Y    = 56.0;   // PCB short axis → enclosure Y
-RPI_T    = 22.0;   // GPIO-face → heatsink tip height — TBD (heatsink height not yet measured)
+RPI_T    = 18.0;   // GPIO-face → heatsink tip height — TBD (heatsink height not yet measured)
 RPI_PCB_T =  1.2;  // bare PCB thickness (confirmed)
 
 // Mounting holes (rotated 90° CW with PCB — DX↔DY swapped; OX, OY unchanged):
@@ -59,26 +60,43 @@ RPI_HOLE_DY  = 49.0;   // hole-to-hole in Y (physical short-axis spacing, now in
 RPI_HOLE_OX  =  3.5;   // offset from RPi −X edge to nearest hole column
 RPI_HOLE_OY  =  3.5;   // offset from RPi −Y edge to nearest hole row
 
-// Port positions — TBD: re-measure with RPi in rotated orientation.
-PORT_USBA_X   = 28.0;   // USB-A stack centre X from RPi −X edge — TBD
-PORT_USBA_W   = 32.0;   // USB-A opening width (X)
-PORT_USBA_H   = 16.0;   // USB-A opening height (Z)
-PORT_USBC_X   = 36.0;   // USB-C centre X from RPi −X edge — TBD
-PORT_USBC_W   = 11.0;   // USB-C opening width
-PORT_USBC_H   =  7.0;   // USB-C opening height
-PORT_ETH_X    =  9.0;   // Ethernet centre X from RPi −X edge — TBD
-PORT_ETH_W    = 20.0;   // Ethernet opening width
-PORT_ETH_H    = 16.0;   // Ethernet opening height
+// Port positions — all TBD: measure on physical RPi in final orientation.
+// USB-A / ETH ports exit through LEFT wall (−X face).
+//   _Y = distance of port centre along the RPi −X edge from the RPi −Y (front) edge.
+//   _W = opening width in enclosure Y;  _H = opening height in Z;  _Z = bottom Z above base floor.
+PORT_USBA_Y   = 28.0;   // USB-A 4-port stack centre: Y from RPi front edge  — TBD
+PORT_USBA_W   = 32.0;   // USB-A combined opening width  (Y)                  — TBD
+PORT_USBA_H   = 16.0;   // USB-A combined opening height (Z)                  — TBD
+PORT_USBA_Z   =  9.0;   // USB-A opening bottom Z above base floor             — TBD
+PORT_ETH_Y    =  9.0;   // Ethernet centre: Y from RPi front edge              — TBD
+PORT_ETH_W    = 20.0;   // Ethernet opening width  (Y)                         — TBD
+PORT_ETH_H    = 16.0;   // Ethernet opening height (Z)                         — TBD
+PORT_ETH_Z    =  9.0;   // Ethernet opening bottom Z above base floor          — TBD
+// USB-C / HDMI ports exit through RIGHT wall (+X face).
+PORT_USBC_Y   = 36.0;   // USB-C centre: Y from RPi front edge  — TBD
+PORT_USBC_W   = 11.0;   // USB-C opening width  (Y)
+PORT_USBC_H   =  7.0;   // USB-C opening height (Z)
+
+// ── Right-wall ventilation grill (round holes) ────────────────
+// Round holes through the 1 mm right wall, over the buck converter zone.
+// Hole centres are kept ≥ VENT_HOLE_R from every zone boundary so
+// no hole overlaps the floor, wall top, or front/back wall edges.
+VENT_Y0         = 15.0;   // hole centre Y min (world Y) — 15 mm clear of front wall
+VENT_Y1         = 64.0;   // hole centre Y max (world Y) — 9 mm clear of back wall
+VENT_Z0         =  1.0;   // zone bottom (world Z); centres start at VENT_Z0+VENT_HOLE_R
+VENT_Z1         = 33.0;   // zone top   (world Z); centres end   at VENT_Z1-VENT_HOLE_R
+VENT_HOLE_R     =  2.5;   // hole radius (5 mm diameter)
+VENT_HOLE_PITCH =  6.0;   // centre-to-centre spacing in Y and Z (2 mm land between holes)
 
 // ── MPI4008 4″ LCD ────────────────────────────────────────────
 // The LCD plugs directly onto the RPi 40-pin GPIO header — their
 // relative XY position is mechanically fixed and must be measured
 // as a coupled assembly.  Offsets below are from RPi PCB centre.
-LCD_PCB_X  = 98.6;    // LCD PCB width  (along enclosure X) — from manual diagram
-LCD_PCB_SL = 58.08;   // LCD PCB depth along slope (enclosure Y) — from manual diagram
-LCD_T      =  5.0;    // LCD module thickness (perp. to face) — TBD measure
-LCD_ACT_X  = 98.6;    // active area width  (confirmed)
-LCD_ACT_SL = 58.08;    // active area height along slope (confirmed)
+LCD_PCB_X  = 100;    // LCD PCB width  (along enclosure X) — from manual diagram
+LCD_PCB_SL = 60;   // LCD PCB depth along slope (enclosure Y) — from manual diagram
+LCD_T      =  5.8;    // LCD module thickness (perp. to face) — measured
+LCD_ACT_X  = 100;    // active area width  (confirmed)
+LCD_ACT_SL = 60;    // active area height along slope (confirmed)
 // GPIO flex cable connects RPi (rotated 90° CW) to LCD.
 // LCD orientation: chip side faces RPi (screen faces outward through cover window).
 // LCD coupling offsets must be re-derived from physical flex-cable assembly.  TBD.
@@ -107,10 +125,10 @@ LCD_PANEL_OSL  = (LCD_SB_FRONT - LCD_SB_BACK)   / 2;  // panel centre slope shif
 // Setbacks from the panel edges to the viewable/active area edges.
 // The cover window is cut to this size (+ LCD_FIT_CLR per side).
 // All zero until measured from the physical unit.
-LCD_VIEW_SB_LEFT  = 2;   // panel -X edge → viewable area -X edge  — TBD
-LCD_VIEW_SB_RIGHT = 3;   // panel +X edge → viewable area +X edge  — TBD
-LCD_VIEW_SB_FRONT = 4;   // panel low-slope edge → viewable edge    — TBD
-LCD_VIEW_SB_BACK  = 5;   // panel high-slope edge → viewable edge   — TBD
+LCD_VIEW_SB_LEFT  = 9;   // panel -X edge → viewable area -X edge  — TBD
+LCD_VIEW_SB_RIGHT = 2;   // panel +X edge → viewable area +X edge  — TBD
+LCD_VIEW_SB_FRONT = 2;   // panel low-slope edge → viewable edge    — TBD
+LCD_VIEW_SB_BACK  = 2;   // panel high-slope edge → viewable edge   — TBD
 
 LCD_VIEW_X   = LCD_PANEL_X   - LCD_VIEW_SB_LEFT  - LCD_VIEW_SB_RIGHT;
 LCD_VIEW_SL  = LCD_PANEL_SL  - LCD_VIEW_SB_FRONT - LCD_VIEW_SB_BACK;
@@ -118,6 +136,8 @@ LCD_VIEW_OX  = LCD_PANEL_OX  + (LCD_VIEW_SB_LEFT  - LCD_VIEW_SB_RIGHT)  / 2;
 LCD_VIEW_OSL = LCD_PANEL_OSL + (LCD_VIEW_SB_FRONT - LCD_VIEW_SB_BACK)   / 2;
 
 LCD_WIN_SKIN = 0.5;  // cover thickness over the LCD setback area (step shoulder depth from outer face)
+
+REAR_CORNER_R = 3.0;  // rear top edge rounding radius (Y=OUTER_Y, Z=MAX_OUTER_Z corner)
 
 // ── LCD PCB corner brackets ───────────────────────────────────
 LCD_BRACKET_T   = 1.5;   // bracket wall thickness
@@ -148,15 +168,16 @@ SD_SCREW_X    = 17.8;  // hole centre X from outside left wall surface
 SD_BACK_CLR   = 3.0;   // back screw hole distance from inner back wall surface
 
 // ── Cavity footprint (shared by base slab and cover) ─────────
-// Left wall aligns with panel left edge (PLATE_X0 = 0). OUTER_X = 145 mm (full panel width).
-// Space right of RPi: INNER_X − (RPI_X0+RPI_X) = 139 − 92.8 = 46.2 mm — LM2596 fits flat.
-INNER_X = 145.0 - 2*WALL;  // = 139 mm
+// Left wall aligns with panel left edge (PLATE_X0 = 0). OUTER_X = 140 mm.
+// Space right of RPi: INNER_X − (RPI_X0+RPI_X) = 134 − 87.8 = 46.2 mm — LM2596 fits flat.
+INNER_X = 140.0 - 2*WALL;  // = 134 mm
 // Y: Driven by RPi tilt geometry, not LCD PCB flat depth.
 // After rotate([180+TILT_ANGLE,0,0]), RPi bare-bottom front edge reaches world_y:
-//   = WALL + RPI_Y0 + RPI_Y/2*(1+cos θ) + STOFF_H*sin θ ≈ 65.2 mm  (θ≈19°)
-// This exceeds LCD_PCB_SL + 2*CLR = 60.1 mm. Iterative solution: INNER_Y ≥ 63.3 mm
-// for CLR clearance; 65.0 mm gives ~2.8 mm margin at the back inner wall.
-INNER_Y = 65.0;                            // RPi tilt constraint (not LCD width)
+//   = WALL + RPI_Y0 + RPI_Y/2*(1+cos θ) + STOFF_H*sin θ
+// After rotate([180+TILT_ANGLE,0,0]), RPi bare-bottom front edge reaches world_y:
+//   = WALL + RPI_Y0 + RPI_Y/2*(1+cos θ) + STOFF_H*sin θ
+// RPI_Y0 reduced by 3 mm but INNER_Y unchanged — RPi moves toward front, back clearance increases to ~5.8 mm.
+INNER_Y = 67.0;                            // RPi tilt constraint (not LCD width)
 
 // ── RPi + LCD assembly inside cover ──────────────────────────
 // Assembly mounts perpendicular to inner angled face.
@@ -164,20 +185,25 @@ INNER_Y = 65.0;                            // RPi tilt constraint (not LCD width
 //                                → RPi (GPIO top) → RPi PCB → standoff tips
 CLR_ABOVE_RPI  = -LCD_PANEL_T;  // screen back face at cover inner face → panel sits in window slot
 LCD_RPI_GAP    = 17.0;    // gap: LCD PCB bottom → RPi PCB GPIO face (measured)
-STOFF_H        = CLR_ABOVE_RPI + LCD_T + LCD_RPI_GAP + RPI_PCB_T;  // = 20.7 mm (inner face → RPi chip face, confirmed)
+STOFF_H        = CLR_ABOVE_RPI + LCD_T + LCD_RPI_GAP + RPI_PCB_T;  // = 21.5 mm (inner face → RPi chip face)
 ASSEMBLY_DEPTH = STOFF_H;  // cover interior depth — TBD: extend by heatsink height once measured
+_COVER_FZ_BASE = WALL + STOFF_H;  // base cover front height — feeds _BH_C so boss heights are independent of COVER_EXTRA
+COVER_EXTRA    = 3.1;              // additional cover height: 0.5 base + 2.0 lift + 0.6 LCD clearance gap
 
 // ── RPi position (centred in X, front-flush in Y) ─────────────
-// RPi centred in X (LCD also centred → they share X centre)
-RPI_X0 = (LCD_PCB_X + 2*CLR - RPI_X) / 2;   // = 7.8 mm (fixed — keeps RPi position relative to left wall)
-RPI_Y0 = CLR;                      // Y offset of RPi front edge from inner front wall
+// RPi centred in X (LCD also centred → they share X centre), shifted right by RPI_X_SHIFT
+RPI_X_SHIFT = 1.0;                                          // shift of RPi+LCD assembly (−2 mm vs original to keep same gap to right wall)
+RPI_X0 = (LCD_PCB_X + 2*CLR - RPI_X) / 2 + RPI_X_SHIFT;  // = 8.8 mm
+RPI_Y0 = CLR - 8.0;               // = -7mm: assembly moved 8mm toward viewer; front wall extends by FRONT_EXT
+FRONT_EXT = max(0, CLR - RPI_Y0); // = 8mm: front wall/floor/side-wall extension to give CLR clearance at RPi edge
+RPI_GROOVE_DEPTH = 3.5;           // depth of floor groove to clear RPi front edge below BASE_OUTER_Z  — TBD
 
 // ── Buck converter floor bosses ────────────────────────────────
 // PCB lies flat (56 mm along Y, 35 mm along X). Right edge of PCB sits
 // BUCK_WALL_GAP mm from right wall inner face.  Setbacks: 3 mm in Y, 3.5 mm in X.
 BUCK_X0 = RPI_X0 + RPI_X + CLR;   // X of PCB left edge (≈ 93.8 mm) — TBD fit check
 BUCK_Y0 = 5.0;                     // Y gap from inner front wall to PCB front edge (back edge 4 mm from inner back wall)
-BUCK_WALL_GAP = 2.0;   // clearance from right wall inner face to PCB right edge
+BUCK_WALL_GAP = 1.0;   // clearance from right wall inner face to PCB right edge
 BUCK_FLOOR_H  = 4.0;   // boss height — PCB solder face at BASE_OUTER_Z + BUCK_FLOOR_H
 // Boss X: right pair setback (BUCK_X - BUCK_HOLE_X)/2 from right PCB edge
 BUCK_FLOOR_X2 = INNER_X + WALL - BUCK_WALL_GAP - (BUCK_X - BUCK_HOLE_X)/2;  // right pair (= OUTER_X − WALL − …)
@@ -187,29 +213,35 @@ BUCK_FLOOR_Y1 = WALL + BUCK_Y0 + (BUCK_Y - BUCK_HOLE_Y)/2;  // front pair
 BUCK_FLOOR_Y2 = BUCK_FLOOR_Y1 + BUCK_HOLE_Y;                 // back  pair
 
 // ── Outer dimensions ──────────────────────────────────────────
-OUTER_X      = INNER_X + 2*WALL;   // = 145 mm
-OUTER_Y      = INNER_Y + 2*WALL;   // =  71 mm
-BASE_OUTER_Z = 4.0;                // thin floor slab — 4 mm is enough
+OUTER_X      = INNER_X + 2*WALL;   // = 140 mm
+OUTER_Y      = INNER_Y + 2*WALL;   // =  73 mm
+BASE_OUTER_Z = 1.0;                // floor slab thickness
 // SD slot Y centre: back screw hole sits SD_BACK_CLR from inner back wall.
 SD_CY = OUTER_Y - WALL - SD_BACK_CLR - SD_SCREW_SPAN/2;
 
 // ── Tilt & cover geometry ─────────────────────────────────────
-// Plate is 125 mm wide (left-aligned), height ceiling = 52 mm.
-// Cover front wall must clear the full RPi + LCD assembly perpendicular to face.
-MAX_OUTER_Z   = 52.0;    // clearance ceiling (narrower left-aligned plate)
-COVER_FRONT_Z = WALL + ASSEMBLY_DEPTH;        // = 31 mm (clears RPi+LCD stack at front)
-COVER_BACK_Z  = MAX_OUTER_Z - BASE_OUTER_Z;  // = 48 mm
-TILT_ANGLE    = atan((COVER_BACK_Z - COVER_FRONT_Z) / OUTER_Y);  // ≈ 10.4°
-LCD_FIT_CLR   = 0.5;     // per-side clearance for LCD PCB window
+// Plate is 125 mm wide (left-aligned).
+// COVER_BACK_Z: full angled-slab back height (cover-local); determines tilt angle.
+// The angled slab is trimmed at COVER_FLAT_Z; a horizontal cap closes the top.
+COVER_BACK_Z  = 53.4;    // angled slab full back height (cover-local); determines tilt angle
+COVER_FRONT_Z = _COVER_FZ_BASE + COVER_EXTRA; // front wall height (cover-local)
+TILT_ANGLE    = atan((COVER_BACK_Z - COVER_FRONT_Z) / OUTER_Y);  // ≈ 19.6°
+LCD_FIT_CLR   = 0.7;     // per-side clearance for LCD PCB window
 
-// Back wall height: shortened so the cover's inner face clears the top, plus an extra
-// 3 mm so the hinge sockets (centred at BHINGE_WZ) sit fully inside the side walls
-// with enough material above them.
-BKWALL_H = MAX_OUTER_Z - WALL / cos(TILT_ANGLE) - 4;  // ≈ 44.8 mm
+// Flat top: horizontal cap as low as possible without clipping the LCD window back edge.
+// _LCD_WIN_BACK_Y = world Y of the LCD window back edge (highest-Y window feature).
+// COVER_FLAT_Z    = cover-local Z of the flat cap bottom face (= angled slab trim height).
+// MAX_OUTER_Z     = enclosure ceiling = flat top outer face world Z.
+_LCD_WIN_BACK_Y = WALL + RPI_Y0 + RPI_Y/2 + LCD_OFS_Y + LCD_PANEL_SL/2 + LCD_FIT_CLR;
+COVER_FLAT_Z    = COVER_FRONT_Z + (_LCD_WIN_BACK_Y / OUTER_Y) * (COVER_BACK_Z - COVER_FRONT_Z);
+MAX_OUTER_Z   = BASE_OUTER_Z + COVER_FLAT_Z;  // enclosure ceiling = flat top outer face (flush with angled slab at junction)
+
+// Back wall height: shortened so the cover's inner face clears the flat top.
+BKWALL_H = MAX_OUTER_Z - WALL / cos(TILT_ANGLE) - 4;
 
 echo(str("Assembly depth (perp. to face): ", ASSEMBLY_DEPTH, " mm"));
 echo(str("LCD tilt from horizontal: ", TILT_ANGLE, "°"));
-echo(str("Total outer height (back corner): ", BASE_OUTER_Z + COVER_BACK_Z, " mm"));
+echo(str("Flat top Z (cover-local): ", COVER_FLAT_Z, " mm   MAX_OUTER_Z: ", MAX_OUTER_Z, " mm"));
 echo(str("PLATE_X0 = ", PLATE_X0, " mm  OUTER_X = ", OUTER_X, " mm  INNER_X = ", INNER_X, " mm"));
 
 // ── Mounting bracket (plate + arm shelf) ─────────────────────
@@ -223,19 +255,17 @@ ARM_THICK =   8.0;   // arm shelf Z thickness
 MOUNT_H1  = [10.0, 30.0];   // top-left hole  [X, Z-from-plate-bottom]
 MOUNT_H2  = [30.0, 10.0];   // bottom-right hole
 
-// ── Ball hinge ────────────────────────────────────────────────
-// The cover fits BETWEEN the base side walls (X = WALL..OUTER_X−WALL).
-// Each ball centre sits exactly on the cover's side face (= inner face of side wall):
-//   Left  X = WALL          Right  X = OUTER_X − WALL
-// This makes each protrusion a perfect hemisphere: half anchored in the cover body,
-// half protruding into the side-wall socket.  The socket is a matching hemisphere
-// recessed into the inner face of each base side wall.
-// The X-parallel axis through both centres is the hinge axle — cover flips open.
-BHINGE_R   = 1.4;    // ball/socket radius (diameter 2.8 mm ≤ WALL 3 mm)
-BHINGE_CLR = 0.1;    // socket radial clearance (tight friction fit; reduce to 0 for press-fit)
+// ── Pin hinge ─────────────────────────────────────────────────
+// Cover has two cylinder pins protruding outward from each side face.
+// Base side walls have matching through-holes.
+// The X-parallel axis through both pin centres is the hinge axle.
+BHINGE_R     = 1.0;   // pin/hole radius
+BHINGE_CLR   = 0.2;   // radial clearance between pin and hole
+BHINGE_PIN_L = WALL_S; // pin protrusion length = wall thickness (flush with outer face)
 
-BHINGE_Y  = OUTER_Y - WALL/2;  // Y: centred in back-wall zone (= 69.5 mm)
-BHINGE_WZ = 48.5;               // world Z of centres — socket top (50 mm) clears side wall top (~51.5 mm)
+BHINGE_Y  = OUTER_Y - WALL_S - BHINGE_R - BHINGE_CLR - 0.5;  // Y: hole edge 0.5 mm clear of back wall
+// Hinge axle sits at the centre of the flat top slab (Z = COVER_FLAT_Z + WALL/2).
+BHINGE_WZ = BASE_OUTER_Z + COVER_FLAT_Z - WALL / 2 - 1.5;  // 1.5 mm below flat slab centre for better material strength
 
 // ── Back-wall cable pass-throughs ─────────────────────────────
 // Window positions are anchored to the two M5 mounting screws (MOUNT_H1, MOUNT_H2).
@@ -255,12 +285,10 @@ BHINGE_WZ = 48.5;               // world Z of centres — socket top (50 mm) cle
 //   Z = PLATE_H − depth  →  MOUNT_H1 at depth 10 = Z 30 ✓,  MOUNT_H2 at depth 30 = Z 10 ✓.
 //   Ports sit just above MOUNT_H1: Z = PLATE_H−9 .. PLATE_H = 31..40 mm.
 //
-BKWALL_WIN_DX0 = 75.7;    // window left  edge: offset right of MOUNT_H2 (panel right − 47.3 − 123 + 153 − 30)
-BKWALL_WIN_DX1 = 104.5;   // window right edge: offset right of MOUNT_H2 (panel right − 18.5 − 123 + 153 − 30)
-BKWALL_WIN_X0  = MOUNT_H2[0] + BKWALL_WIN_DX0;    // = 105.7 mm from enclosure left
-BKWALL_WIN_W   = BKWALL_WIN_DX1 - BKWALL_WIN_DX0; // = 28.8 mm
-BKWALL_WIN_ZHI = PLATE_H;        // = 40 mm  (top of mounting plate = depth 0 in panel diagram)
-BKWALL_WIN_ZLO = PLATE_H - 9.0;  // = 31 mm  (9 mm window height, just above MOUNT_H1 at Z 30)
+BKWALL_WIN_X0  = 55.0;   // window left  edge from left wall (mm)
+BKWALL_WIN_W   = 35.0;   // window width (mm)
+BKWALL_WIN_ZHI = PLATE_H - 3.0;  // = 37 mm  (lowered 3 mm from plate top)
+BKWALL_WIN_ZLO = PLATE_H - 12.0; // = 28 mm  (9 mm window height)
 echo(str("Cable window X=[", BKWALL_WIN_X0, " .. ", BKWALL_WIN_X0+BKWALL_WIN_W, "]  Z=[", BKWALL_WIN_ZLO, " .. ", BKWALL_WIN_ZHI, "]"));
 
 // Second back-wall window: 15×15 mm, lower-left area.
@@ -280,14 +308,18 @@ BKWALL_WIN2_ZHI = 15.0;
 //   boss height h    = _BH_C + by·sin θ
 //   (derived from requiring boss tip Y = by − h·sin θ = hole_world_y)
 //
-// _BH_C = height constant: COVER_FRONT_Z·cos θ − WALL − STOFF_H − RPI_PCB_T
+// _BH_C = height constant: _COVER_FZ_BASE·cos θ − WALL − STOFF_H − RPI_PCB_T + RPI_Z_LIFT
 // RPI_PCB_T subtracted so boss tips land on the PCB bare-bottom face (not the component-top face).
+// RPI_Z_LIFT raises all boss tips (≈ RPI_Z_LIFT mm in world Z), keeping the PCB front edge
+// above the base floor so no floor groove is needed.
 // 180° flip → small-dy RPi holes land at large world_y (near enclosure back wall).
-_BH_C = COVER_FRONT_Z * cos(TILT_ANGLE) - WALL - STOFF_H - RPI_PCB_T;
+RPI_Z_LIFT = 4.0;   // raises boss tips above STOFF_H from cover inner face; net lift = RPI_Z_LIFT − RPI_PCB_T = 2.8 mm
+_BH_C = _COVER_FZ_BASE * cos(TILT_ANGLE) - WALL - STOFF_H - RPI_PCB_T + RPI_Z_LIFT;  // uses _COVER_FZ_BASE so boss heights are unchanged by COVER_EXTRA
 _RY_C = WALL + RPI_Y0 + RPI_Y/2;   // RPi Y-centre in enclosure
 
-BOSS_XS = [WALL + RPI_X0 + RPI_HOLE_OX,
-           WALL + RPI_X0 + RPI_HOLE_OX + RPI_HOLE_DX];
+// RPi mirrored in X: offset from −X edge = RPI_X − RPI_HOLE_OX − RPI_HOLE_DX
+BOSS_XS = [WALL + RPI_X0 + RPI_X - RPI_HOLE_OX - RPI_HOLE_DX,
+           WALL + RPI_X0 + RPI_X - RPI_HOLE_OX];
 // [0] = back holes  (dy = RPI_HOLE_OY + RPI_HOLE_DY, small world_y, short boss)
 // [1] = front holes (dy = RPI_HOLE_OY,               large world_y, tall boss — base near back wall)
 BOSS_YS = [(_RY_C + (RPI_Y/2 - RPI_HOLE_OY - RPI_HOLE_DY) * cos(TILT_ANGLE) + (STOFF_H + _BH_C) * sin(TILT_ANGLE)) / pow(cos(TILT_ANGLE), 2),
