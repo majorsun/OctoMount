@@ -176,7 +176,7 @@ INNER_X = 140.0 - 2*WALL;  // = 134 mm
 //   = WALL + RPI_Y0 + RPI_Y/2*(1+cos θ) + STOFF_H*sin θ
 // After rotate([180+TILT_ANGLE,0,0]), RPi bare-bottom front edge reaches world_y:
 //   = WALL + RPI_Y0 + RPI_Y/2*(1+cos θ) + STOFF_H*sin θ
-// RPI_Y0 reduced by 3 mm but INNER_Y unchanged — RPi moves toward front, back clearance increases to ~5.8 mm.
+// RPI_Y0 = -10mm (maximally forward); INNER_Y unchanged — back clearance to rear boss rib increases.
 INNER_Y = 67.0;                            // RPi tilt constraint (not LCD width)
 
 // ── RPi + LCD assembly inside cover ──────────────────────────
@@ -194,8 +194,8 @@ COVER_EXTRA    = 3.1;              // additional cover height: 0.5 base + 2.0 li
 // RPi centred in X (LCD also centred → they share X centre), shifted right by RPI_X_SHIFT
 RPI_X_SHIFT = 1.0;                                          // shift of RPi+LCD assembly (−2 mm vs original to keep same gap to right wall)
 RPI_X0 = (LCD_PCB_X + 2*CLR - RPI_X) / 2 + RPI_X_SHIFT;  // = 8.8 mm
-RPI_Y0 = CLR - 8.0;               // = -7mm: assembly moved 8mm toward viewer; front wall extends by FRONT_EXT
-FRONT_EXT = max(0, CLR - RPI_Y0); // = 8mm: front wall/floor/side-wall extension to give CLR clearance at RPi edge
+RPI_Y0 = CLR - 11.0;              // = -10mm: maximally forward; front boss at BOSS_YS[0]≈6.2mm (front edge +2.7mm); front wall extends by FRONT_EXT
+FRONT_EXT = max(0, CLR - RPI_Y0); // = 11mm: front wall/floor/side-wall extension to give CLR clearance at RPi edge
 RPI_GROOVE_DEPTH = 3.5;           // depth of floor groove to clear RPi front edge below BASE_OUTER_Z  — TBD
 
 // ── Buck converter floor bosses ────────────────────────────────
@@ -223,7 +223,8 @@ SD_CY = OUTER_Y - WALL - SD_BACK_CLR - SD_SCREW_SPAN/2;
 // Plate is 125 mm wide (left-aligned).
 // COVER_BACK_Z: full angled-slab back height (cover-local); determines tilt angle.
 // The angled slab is trimmed at COVER_FLAT_Z; a horizontal cap closes the top.
-COVER_BACK_Z  = 53.4;    // angled slab full back height (cover-local); determines tilt angle
+COVER_BACK_Z  = 51.0;    // angled slab full back height (cover-local); determines tilt angle
+                         // min: BKWALL_H = MAX_OUTER_Z − WALL/cos(θ) − 4 ≥ BKWALL_WIN_ZHI (37mm) → 51mm gives ≈1mm margin
 COVER_FRONT_Z = _COVER_FZ_BASE + COVER_EXTRA; // front wall height (cover-local)
 TILT_ANGLE    = atan((COVER_BACK_Z - COVER_FRONT_Z) / OUTER_Y);  // ≈ 19.6°
 LCD_FIT_CLR   = 0.7;     // per-side clearance for LCD PCB window
@@ -332,6 +333,11 @@ echo(str("Boss tip world_Y: [0]=",
     BOSS_YS[0] - (_BH_C + BOSS_YS[0]*sin(TILT_ANGLE)) * sin(TILT_ANGLE),
     "  [1]=",
     BOSS_YS[1] - (_BH_C + BOSS_YS[1]*sin(TILT_ANGLE)) * sin(TILT_ANGLE)));
+
+// ── Stylus holder (flat top of cover) ─────────────────────────
+STYLUS_D        =  5.0;   // stylus outer diameter (mm)
+STYLUS_HOLDER_D =  8.0;   // groove diameter — half-cylinder (mm)
+STYLUS_HOLDER_L = 100.0;  // groove length along X (mm)
 
 // ── Utility modules ───────────────────────────────────────────
 

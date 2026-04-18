@@ -95,59 +95,40 @@ module _base_solid() {
     }
 
     // Back wall = mounting plate — single wall at Y = OUTER_Y − WALL_S .. OUTER_Y
+    // Height = BKWALL_H: computed to leave clearance below the cover inner face when rotating.
     translate([0, OUTER_Y - WALL_S, 0])
-        cube([OUTER_X, WALL_S, BKWALL_H]);               // back wall, shortened by cover slab thickness
-    translate([PLATE_X0, OUTER_Y - WALL_S, 0])
-        cube([PLATE_W, WALL_S, PLATE_H]);                // mounting plate extension (same Y, wider)
+        cube([OUTER_X, WALL_S, BKWALL_H]);
 
     // Extra 2 mm interior thickness on back wall: left side → left edge of bottom window.
     // Brings total thickness to WALL_S+2 in that region; the 2 mm counterbore for M5 heads sits here.
     translate([0, OUTER_Y - WALL_S - 2, 0])
-        cube([BKWALL_WIN2_X0, 2, max(BKWALL_H, PLATE_H)]);
+        cube([BKWALL_WIN2_X0, 2, BKWALL_H]);
 
     // Front RPi bosses rendered in base() union.
 
-    // Back RPi boss pads + triangular support ribs (replaces full-width connecting plate).
-    // Two separate pads — one per back boss — each 2×M25_BOSS_R wide.
-    // Below each pad: a triangular rib whose tip is the pad front-bottom edge and whose
-    // base is a vertical strip at the back wall from BASE_OUTER_Z up to the pad-bottom face.
-    // Rib 4: trapezoidal wedge on right side (BKWALL_WIN2 right edge → right boss outer edge).
+    // Two triangular ribs — one per back RPi boss.
+    // Tip at the forward edge of the boss circle (local Y=−M25_BOSS_R, Z=_hb) in world coords,
+    // so the full boss footprint (including screw hole) has solid material to tap into.
+    // Base: vertical strip at back wall from floor to pad-top height.
     let(_by = BOSS_YS[1],
         _hb = _BH_C + BOSS_YS[1] * sin(TILT_ANGLE),
         _ts = max(WALL, M25_BOSS_DEPTH),
-        _D  = (OUTER_Y - WALL_S - _by + (_hb - _ts) * sin(TILT_ANGLE)) / cos(TILT_ANGLE) + M25_BOSS_R,
-        _x0 = BOSS_XS[0] - M25_BOSS_R,
-        _x1 = BOSS_XS[1] + M25_BOSS_R,
         _pz = BASE_OUTER_Z + (_hb - _ts) / cos(TILT_ANGLE),
-        _pz_back  = _pz + (OUTER_Y - WALL_S - _by) * tan(TILT_ANGLE),
-        _rib_y0   = _by - M25_BOSS_R * cos(TILT_ANGLE) - (_hb - _ts) * sin(TILT_ANGLE),
-        _pz_front = _pz + (_rib_y0 - _by) * tan(TILT_ANGLE)) {
+        _pz_back      = _pz + (OUTER_Y - WALL_S - _by) * tan(TILT_ANGLE),
+        _pz_back_top  = _pz_back + _ts / cos(TILT_ANGLE),
+        _tip_wz       = BASE_OUTER_Z + _hb * cos(TILT_ANGLE),
+        _tip_wy       = _by - _hb * sin(TILT_ANGLE),
+        // Forward edge of boss circle at tip level (local Y=−M25_BOSS_R, Z=_hb)
+        _fwd_wy       = _tip_wy - M25_BOSS_R * cos(TILT_ANGLE),
+        _fwd_wz       = _tip_wz - M25_BOSS_R * sin(TILT_ANGLE)) {
 
-        for (bx = BOSS_XS) {
-            // Tilted mounting pad for this boss (same frame as old plate, narrowed to boss width)
-            translate([bx - M25_BOSS_R, _by, BASE_OUTER_Z])
-                rotate([TILT_ANGLE, 0, 0])
-                    translate([0, -M25_BOSS_R, _hb - _ts])
-                        cube([2*M25_BOSS_R, _D, _ts]);
-
-            // Triangular support rib:
-            //   tip  — front-bottom edge of pad (world Y=_rib_y0, Z=_pz_front)
-            //   base — vertical strip at back wall from floor to pad-bottom (Z=BASE_OUTER_Z.._pz_back)
+        for (bx = BOSS_XS)
             hull() {
-                translate([bx - M25_BOSS_R, _rib_y0, _pz_front])
+                translate([bx - M25_BOSS_R, _fwd_wy, _fwd_wz])
                     cube([2*M25_BOSS_R, 0.01, 0.01]);
                 translate([bx - M25_BOSS_R, OUTER_Y - WALL_S - 0.01, BASE_OUTER_Z])
-                    cube([2*M25_BOSS_R, 0.01, _pz_back - BASE_OUTER_Z + 0.01]);
+                    cube([2*M25_BOSS_R, 0.01, _pz_back_top - BASE_OUTER_Z + 0.01]);
             }
-        }
-
-        // Rib 4 — narrow triangular rib (WALL_S wide) at right boss outer edge.
-        hull() {
-            translate([_x1 - WALL_S, _rib_y0, _pz_front])
-                cube([WALL_S, 0.01, 0.01]);
-            translate([_x1 - WALL_S, OUTER_Y - WALL_S - 0.01, BASE_OUTER_Z])
-                cube([WALL_S, 0.01, _pz_back - BASE_OUTER_Z + 0.01]);
-        }
     }
 
     // Buck converter M3 floor bosses — 4-post pattern, vertical from base slab.
@@ -168,9 +149,19 @@ module _base_cuts() {
             rotate([0, 90, 0])
                 cylinder(r=VENT_HOLE_R, h=WALL_S + 0.1, $fn=24);
     // Front columns: 4 holes each (top row omitted — wall too short there).
-    for (vy = [VENT_Y0 - VENT_HOLE_PITCH, VENT_Y0 - 2*VENT_HOLE_PITCH],
+    for (vy = [VENT_Y0 - VENT_HOLE_PITCH, VENT_Y0 - 2*VENT_HOLE_PITCH, VENT_Y0 - 3*VENT_HOLE_PITCH],
          vz = [VENT_Z0 + VENT_HOLE_R : VENT_HOLE_PITCH : VENT_Z1 - VENT_HOLE_PITCH - VENT_HOLE_R])
         translate([OUTER_X - WALL_S - 0.05, vy, vz])
+            rotate([0, 90, 0])
+                cylinder(r=VENT_HOLE_R, h=WALL_S + 0.1, $fn=24);
+    // Extra row: 6 holes one pitch above the main grid top row (Z = 33.5 mm), centered in Y.
+    for (vy = [VENT_Y0 + 3*VENT_HOLE_PITCH : VENT_HOLE_PITCH : VENT_Y0 + 8*VENT_HOLE_PITCH])
+        translate([OUTER_X - WALL_S - 0.05, vy, VENT_Z0 + VENT_HOLE_R + 5*VENT_HOLE_PITCH])
+            rotate([0, 90, 0])
+                cylinder(r=VENT_HOLE_R, h=WALL_S + 0.1, $fn=24);
+    // Rear column: 6 holes (5 main rows + top row) one pitch behind the last main-grid column.
+    for (vz = [VENT_Z0 + VENT_HOLE_R : VENT_HOLE_PITCH : VENT_Z0 + VENT_HOLE_R + 5*VENT_HOLE_PITCH])
+        translate([OUTER_X - WALL_S - 0.05, VENT_Y0 + 9*VENT_HOLE_PITCH, vz])
             rotate([0, 90, 0])
                 cylinder(r=VENT_HOLE_R, h=WALL_S + 0.1, $fn=24);
 
@@ -217,6 +208,19 @@ module _base_cuts() {
             rotate([-90, 0, 0])
                 translate([0, 0, -0.05])
                     cylinder(d=M5_CS_D, h=M5_CS_H + 0.05, $fn=24);
+
+    // ── Extended M5_CS_D bore for MOUNT_H2 through left boss rib ──
+    // The left RPi boss rib spans from _fwd_wy to the back wall; its X extent overlaps
+    // with the MOUNT_H2 counterbore circle (X≈31.8..34.75 mm).  Bore the full countersink
+    // diameter from the forward tip of the rib all the way to the back wall face so the
+    // M5 screw-head pocket is unobstructed.
+    let(_by     = BOSS_YS[1],
+        _hb     = _BH_C + _by * sin(TILT_ANGLE),
+        _tip_wy = _by - _hb * sin(TILT_ANGLE),
+        _fwd_wy = _tip_wy - M25_BOSS_R * cos(TILT_ANGLE))
+        translate([PLATE_X0 + MOUNT_H2[0], _fwd_wy - 0.05, MOUNT_H2[1]])
+            rotate([-90, 0, 0])
+                cylinder(d=M5_CS_D, h=OUTER_Y - WALL_S - _fwd_wy + 0.1, $fn=24);
 
     // ── Back wall: combined USB-A + microSD cable routing window ──
     // Right zone of main back wall; X = 97.7..126.5 mm; Z = 21..30 mm.

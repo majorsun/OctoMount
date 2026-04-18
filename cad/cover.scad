@@ -39,39 +39,47 @@ cover();
 module cover() {
     // Y where the angled slab outer face reaches COVER_FLAT_Z — start of flat top.
     _y_cut = (COVER_FLAT_Z - COVER_FRONT_Z) * OUTER_Y / (COVER_BACK_Z - COVER_FRONT_Z);
-    union() {
-        // ── Angled slab + front wall, trimmed at flat boundary ─────────────
-        difference() {
-            union() {
-                _cover_top_slab();
-                _cover_front_wall();
-            }
-            _cover_trim_cuts();
-            _lcd_window_cuts();
-            // Remove angled slab above COVER_FLAT_Z (flat top boundary cut)
-            translate([-1, _y_cut - 0.01, COVER_FLAT_Z])
-                cube([OUTER_X + 2, OUTER_Y - _y_cut + 21, 200]);
-        }
-        // ── Flat top slab + hinge pins/axle (outside angled-slab cuts) ─────
-        difference() {
-            union() {
-                translate([WALL_S, _y_cut, COVER_FLAT_Z - WALL])
-                    cube([OUTER_X - 2*WALL_S, OUTER_Y - _y_cut, WALL]);
-                _cover_hinge_pins();
-            }
-            // Back clip: nothing beyond OUTER_Y
-            translate([-1, OUTER_Y, -1])
-                cube([OUTER_X + 2, 100, 300]);
-            // Rear top edge rounding — corner_cut = quadrant_cube − quadrant_cylinder,
-            // both centred at (OUTER_Y−r, COVER_FLAT_Z−r) in cover-local coordinates.
+    // Stylus groove is applied at the outermost level so it cuts through both
+    // the flat slab and the underlying angled slab material at the same location.
+    difference() {
+        union() {
+            // ── Angled slab + front wall, trimmed at flat boundary ─────────────
             difference() {
-                translate([WALL_S - 0.01, OUTER_Y - REAR_CORNER_R, COVER_FLAT_Z - REAR_CORNER_R])
-                    cube([OUTER_X - 2*WALL_S + 0.02, REAR_CORNER_R + 1, REAR_CORNER_R + 1]);
-                translate([WALL_S - 0.01, OUTER_Y - REAR_CORNER_R, COVER_FLAT_Z - REAR_CORNER_R])
-                    rotate([0, 90, 0])
-                        cylinder(r=REAR_CORNER_R, h=OUTER_X - 2*WALL_S + 0.02, $fn=32);
+                union() {
+                    _cover_top_slab();
+                    _cover_front_wall();
+                }
+                _cover_trim_cuts();
+                _lcd_window_cuts();
+                // Remove angled slab above COVER_FLAT_Z (flat top boundary cut)
+                translate([-1, _y_cut - 0.01, COVER_FLAT_Z])
+                    cube([OUTER_X + 2, OUTER_Y - _y_cut + 21, 200]);
+            }
+            // ── Flat top slab + hinge pins/axle (outside angled-slab cuts) ─────
+            difference() {
+                union() {
+                    translate([WALL_S, _y_cut, COVER_FLAT_Z - WALL])
+                        cube([OUTER_X - 2*WALL_S, OUTER_Y - _y_cut, WALL]);
+                    _cover_hinge_pins();
+                }
+                // Back clip: nothing beyond OUTER_Y
+                translate([-1, OUTER_Y, -1])
+                    cube([OUTER_X + 2, 100, 300]);
+                // Rear top edge rounding — corner_cut = quadrant_cube − quadrant_cylinder,
+                // both centred at (OUTER_Y−r, COVER_FLAT_Z−r) in cover-local coordinates.
+                difference() {
+                    translate([WALL_S - 0.01, OUTER_Y - REAR_CORNER_R, COVER_FLAT_Z - REAR_CORNER_R])
+                        cube([OUTER_X - 2*WALL_S + 0.02, REAR_CORNER_R + 1, REAR_CORNER_R + 1]);
+                    translate([WALL_S - 0.01, OUTER_Y - REAR_CORNER_R, COVER_FLAT_Z - REAR_CORNER_R])
+                        rotate([0, 90, 0])
+                            cylinder(r=REAR_CORNER_R, h=OUTER_X - 2*WALL_S + 0.02, $fn=32);
+                }
             }
         }
+        // Stylus groove — cuts both flat slab and angled slab material
+        _stylus_groove(_y_cut);
+        // Finger relief scoop at groove midpoint
+        _stylus_finger_relief(_y_cut);
     }
 }
 
@@ -159,4 +167,32 @@ module _lcd_window_cuts() {
                 cube([LCD_VIEW_X  + 2*LCD_FIT_CLR,
                       LCD_VIEW_SL + 2*LCD_FIT_CLR,
                       _deep + 1]);
+}
+
+// ── Stylus holder groove (sinks into flat top) ─────────────────
+// Half-cylinder groove, axis along X, centered in X.
+// Y = 1/3 from the front edge of the flat-top area toward the back.
+// Centre raised by (r − WALL) so the groove bottom is tangent to the
+// slab bottom — no punch-through, full 8 mm groove opening at surface.
+module _stylus_groove(y_cut) {
+    _r   = STYLUS_HOLDER_D / 2;
+    _hy  = y_cut + (OUTER_Y - y_cut) / 3;
+    _gx  = (OUTER_X - STYLUS_HOLDER_L) / 2;
+    translate([_gx, _hy, COVER_FLAT_Z + _r - WALL])
+        rotate([0, 90, 0])
+            cylinder(r=_r, h=STYLUS_HOLDER_L, $fn=48);
+}
+
+// ── Stylus finger relief (ergonomic scoop at groove midpoint) ──
+// Ellipsoid centred flush with the flat top surface, same Y as groove.
+// Z radius = WALL so the deepest point is tangent to the slab bottom —
+// same depth as the groove, no punch-through.
+//   X radius : 13 mm  (26 mm span — room for two finger pads)
+//   Y radius :  7 mm  (14 mm wide — wider than 8 mm groove)
+//   Z radius : WALL   (matches groove depth, tangent to slab bottom)
+module _stylus_finger_relief(y_cut) {
+    _hy = y_cut + (OUTER_Y - y_cut) / 3;
+    translate([OUTER_X / 2, _hy, COVER_FLAT_Z])
+        scale([13, 7, WALL])
+            sphere(r=1, $fn=48);
 }

@@ -33,6 +33,9 @@ SHOW_COVER      = 1;     // 1 = render cover
 EXPLODE         = 1;
 EXP_D           = 60;    // explode separation in mm
 
+FLIP_OPEN       = 1;     // 1 = show cover flipped open around hinge axis (overrides EXPLODE)
+FLIP_ANGLE      = 60;    // degrees open (90 = cover horizontal, 120 = leaning back)
+
 SHOW_RPI        = 1;     // 1 = show ghost RPi PCB inside
 SHOW_LCD        = 1;     // 1 = show ghost LCD module inside
 SHOW_BUCK       = 1;     // 1 = show ghost LM2596 buck converter
@@ -80,9 +83,18 @@ if (SHOW_DEBUG)
 _cover_dz = BASE_OUTER_Z + EXPLODE * EXP_D;
 
 if (SHOW_COVER)
-    color(COVER_COL)
-        translate([0, 0, _cover_dz])
-            cover();
+    color(COVER_COL) {
+        if (FLIP_OPEN)
+            // Rotate cover around the hinge axis (X-parallel line at Y=BHINGE_Y, Z=BHINGE_WZ).
+            // rotate([-FLIP_ANGLE,0,0]): front edge lifts upward (+Z), away from base.
+            translate([0, BHINGE_Y, BHINGE_WZ])
+                rotate([-FLIP_ANGLE, 0, 0])
+                    translate([0, -BHINGE_Y, BASE_OUTER_Z - BHINGE_WZ])
+                        cover();
+        else
+            translate([0, 0, _cover_dz])
+                cover();
+    }
 
 // ── Ghost internals — RPi + LCD parallel to inner angled face ─
 if (SHOW_RPI || SHOW_LCD) {
