@@ -61,6 +61,7 @@ module cover() {
                     translate([WALL_S, _y_cut, COVER_FLAT_Z - WALL])
                         cube([OUTER_X - 2*WALL_S, OUTER_Y - _y_cut, WALL]);
                     _cover_hinge_pins();
+                    _stylus_groove_bottom(_y_cut);
                 }
                 // Back clip: nothing beyond OUTER_Y
                 translate([-1, OUTER_Y, -1])
@@ -167,6 +168,27 @@ module _lcd_window_cuts() {
                 cube([LCD_VIEW_X  + 2*LCD_FIT_CLR,
                       LCD_VIEW_SL + 2*LCD_FIT_CLR,
                       _deep + 1]);
+}
+
+// ── Stylus groove floor (curved bottom matching groove profile) ─
+// A second cylinder — same radius and axis as the groove — offset
+// downward by _ft.  The outer difference's groove cut removes the
+// lens-shaped overlap, leaving a crescent-section shell that exactly
+// follows the groove curvature.  Protrudes below cover interior — intentional.
+module _stylus_groove_bottom(y_cut) {
+    _r  = STYLUS_HOLDER_D / 2;
+    _hy = y_cut + (OUTER_Y - y_cut) / 3;
+    _gx = (OUTER_X - STYLUS_HOLDER_L) / 2;
+    _gz = COVER_FLAT_Z + _r - WALL;   // groove centre Z
+    _ft = 1.5;   // floor offset below groove centre (= floor thickness at bottom point)
+    intersection() {
+        translate([_gx, _hy, _gz - _ft])
+            rotate([0, 90, 0])
+                cylinder(r=_r, h=STYLUS_HOLDER_L, $fn=48);
+        // Clip to below flat slab top — prevents coplanar z-fighting with slab top face
+        translate([_gx - 1, _hy - _r - 1, -1000])
+            cube([STYLUS_HOLDER_L + 2, 2*_r + 2, 1000 + COVER_FLAT_Z]);
+    }
 }
 
 // ── Stylus holder groove (sinks into flat top) ─────────────────

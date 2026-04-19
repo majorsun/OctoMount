@@ -381,12 +381,21 @@ module rpi_back_block(h, by) {
     }
 }
 
-// M3 boss: solid cylinder, blind tapped hole on top.
+// M3 boss: solid cylinder, through hole.
 module m3_boss(h) {
     difference() {
         cylinder(r=M3_BOSS_R, h=h, $fn=32);
-        translate([0, 0, h - M3_BOSS_DEPTH])
-            cylinder(d=M3_TAP, h=M3_BOSS_DEPTH+0.1, $fn=16);
+        translate([0, 0, -0.1])
+            cylinder(d=M3_TAP, h=h+0.2, $fn=16);
+    }
+}
+
+// M2.5 floor boss: solid cylinder, through hole (same screw family as RPi bosses).
+module m25_boss(h) {
+    difference() {
+        cylinder(r=M25_BOSS_R, h=h, $fn=32);
+        translate([0, 0, -0.1])
+            cylinder(d=M25_CLEAR, h=h+0.2, $fn=16);
     }
 }
 

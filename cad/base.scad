@@ -56,11 +56,14 @@ module base() {
                     translate([bx - M25_BOSS_R - 1, BOSS_YS[0] - M25_BOSS_R - 1, 0])
                         cube([2*(M25_BOSS_R+1), 2*(M25_BOSS_R+1), MAX_OUTER_Z]);
                 }
-                // Blind tap hole at boss tip (tilted frame)
+                // Through hole: tip through tilted boss
                 translate([bx, BOSS_YS[0], BASE_OUTER_Z])
                     rotate([TILT_ANGLE, 0, 0])
-                        translate([0, 0, _h0 - M25_BOSS_DEPTH])
-                            cylinder(d=M25_CLEAR, h=M25_BOSS_DEPTH + 0.1, $fn=16);
+                        translate([0, 0, -0.1])
+                            cylinder(d=M25_CLEAR, h=_h0 + 0.2, $fn=16);
+                // Through-floor: vertical punch through the upright base cylinder
+                translate([bx, BOSS_YS[0], -0.1])
+                    cylinder(d=M25_CLEAR, h=BASE_OUTER_Z + 0.2, $fn=16);
             }
     }
 }
@@ -131,11 +134,11 @@ module _base_solid() {
             }
     }
 
-    // Buck converter M3 floor bosses — 4-post pattern, vertical from base slab.
+    // Buck converter M2.5 floor bosses — 4-post pattern, vertical from base slab.
     // PCB rests on boss tops; screw from above through PCB into tapped boss.
     for (bx = [BUCK_FLOOR_X1, BUCK_FLOOR_X2], by = [BUCK_FLOOR_Y1, BUCK_FLOOR_Y2])
         translate([bx, by, BASE_OUTER_Z])
-            m3_boss(BUCK_FLOOR_H);
+            m25_boss(BUCK_FLOOR_H);
 
 }
 
@@ -285,13 +288,22 @@ module _base_cuts() {
         rotate([0, 90, 0])
             cylinder(r=BHINGE_R + BHINGE_CLR, h=WALL_S + 0.1, $fn=32);
 
-    // M3 tap holes are already inside m3_boss() — no separate cut needed.
+    // ── Through-floor holes for all 8 bosses ──────────────────────
+    // Vertical cylinders punching through the floor slab (z = 0 .. BASE_OUTER_Z)
+    // so screws exit cleanly through the bottom of the base.
+    for (bx = BOSS_XS, by = BOSS_YS)   // 4 × RPi M2.5
+        translate([bx, by, -0.1])
+            cylinder(d=M25_CLEAR, h=BASE_OUTER_Z + 0.2, $fn=16);
+    for (bx = [BUCK_FLOOR_X1, BUCK_FLOOR_X2],
+         by = [BUCK_FLOOR_Y1, BUCK_FLOOR_Y2])   // 4 × buck M2.5
+        translate([bx, by, -0.1])
+            cylinder(d=M25_CLEAR, h=BASE_OUTER_Z + 0.2, $fn=16);
 
     // ── M2.5 tap holes in back plate (RPi rear mounting holes) ──
     // Same tilted-frame position as the former rpi_back_block boss tips.
     for (bx = BOSS_XS)
         translate([bx, BOSS_YS[1], BASE_OUTER_Z])
             rotate([TILT_ANGLE, 0, 0])
-                translate([0, 0, _BH_C + BOSS_YS[1] * sin(TILT_ANGLE) - M25_BOSS_DEPTH])
-                    cylinder(d=M25_CLEAR, h=M25_BOSS_DEPTH + 0.1, $fn=16);
+                translate([0, 0, -0.1])
+                    cylinder(d=M25_CLEAR, h=_BH_C + BOSS_YS[1] * sin(TILT_ANGLE) + 0.2, $fn=16);
 }
