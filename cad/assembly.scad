@@ -30,15 +30,16 @@ use <cover.scad>
 SHOW_BASE       = 1;     // 1 = render base
 SHOW_COVER      = 1;     // 1 = render cover
 
-EXPLODE         = 1;
+EXPLODE         = 0;
 EXP_D           = 60;    // explode separation in mm
 
-FLIP_OPEN       = 1;     // 1 = show cover flipped open around hinge axis (overrides EXPLODE)
+FLIP_OPEN       = 0;     // 1 = show cover flipped open around hinge axis (overrides EXPLODE)
 FLIP_ANGLE      = 60;    // degrees open (90 = cover horizontal, 120 = leaning back)
 
 SHOW_RPI        = 1;     // 1 = show ghost RPi PCB inside
 SHOW_LCD        = 1;     // 1 = show ghost LCD module inside
 SHOW_BUCK       = 1;     // 1 = show ghost LM2596 buck converter
+SHOW_FAN40      = 1;     // 1 = show ghost 4010 fan (right-wall mounted)
 SHOW_DEBUG      = 1;     // 1 = red spheres at boss-tip world positions
 
 BASE_COL       = [0.3,  0.55, 0.75, 1.0];   // blue-grey, opaque
@@ -47,6 +48,14 @@ RPI_COL        = [0.2,  0.7,  0.3,  0.85];  // green ghost
 LCD_PCB_COL    = [0.9,  0.9,  0.3,  0.5];   // yellow ghost — PCB layer (behind)
 LCD_PANEL_COL  = [0.95, 0.55, 0.1,  0.8];   // orange ghost — panel layer (front, in window)
 BUCK_COL       = [0.7,  0.35, 0.1,  0.9];   // brown ghost — LM2596 buck converter
+FAN40_COL      = [0.6,  0.6,  0.6,  0.7];   // grey ghost  — 4010 fan
+SCREW_COL      = [0.75, 0.75, 0.8,  1.0];   // steel — M3 screws + nuts
+
+// ── Shared M3 hardware dims ───────────────────────────────────
+_m3_head_d  = 5.5;   // M3 pan-head diameter
+_m3_head_h  = 2.0;   // M3 pan-head height
+_m3_nut_r   = (5.5 / 2) / cos(30);  // M3 hex-nut circumscribed radius (AF=5.5mm)
+_m3_nut_h   = 2.4;   // M3 hex-nut thickness
 
 // ── Base at world origin ──────────────────────────────────────
 if (SHOW_BASE)
@@ -68,6 +77,60 @@ if (SHOW_BUCK)
                     translate([bx, by, -0.05])
                         cylinder(d=BUCK_HOLE_D, h=BUCK_Z + 0.1, $fn=16);
             }
+
+// ── Ghost: M3 screws for buck converter bosses ────────────────
+// Four M3×10 pan-head screws through PCB mounting holes into base bosses.
+// Heads shown above the full component height (BUCK_Z) so they're visible in the assembly.
+// Shaft descends from head through PCB (1.6mm) into the boss (BUCK_FLOOR_H).
+_buck_screw_l = BUCK_FLOOR_H + 1.6;  // shaft: through PCB + full boss depth
+
+if (SHOW_BUCK)
+    color(SCREW_COL)
+        for (bx = [BUCK_FLOOR_X1, BUCK_FLOOR_X2],
+             by = [BUCK_FLOOR_Y1, BUCK_FLOOR_Y2])
+            translate([bx, by, BASE_OUTER_Z + BUCK_FLOOR_H + BUCK_Z]) {
+                cylinder(d=_m3_head_d, h=_m3_head_h, $fn=16);           // head above module top
+                translate([0, 0, -_buck_screw_l])
+                    cylinder(d=3.0, h=_buck_screw_l, $fn=16);            // shaft down into boss
+            }
+
+// ── Ghost: 4010 fan (right-wall mounted, blowing inward −X) ──────────────
+// Outer face at X = OUTER_X − WALL_S; body extends inward FAN40_T mm.
+// Four M3 holes at ±FAN40_HOLE_P/2 in Y and Z from centre.
+// STL bounding box: X=−20..20, Y=0..10, Z=−20..20 (centred in XZ, depth in Y).
+// Face in XZ plane (normal = STL −Y).  rotate([0,0,90]) maps:
+//   STL X → world Y (width), STL Y → world −X (depth inward), STL Z → world Z (height).
+//   Face normal (STL −Y) → world +X (facing right wall from inside).
+// Translate to fan-centre world pos so the centred-at-origin XZ extents land correctly.
+if (SHOW_FAN40)
+    color(FAN40_COL)
+        translate([OUTER_X - WALL_S, FAN40_CY, FAN40_CZ])
+            rotate([0, 0, 90])
+                import("../reference/4010fanv1.stl", convexity=5);
+
+// ── Ghost: M3 screws + hex nuts for fan mounting ──────────────
+// Screws enter from outside right wall (+X side), nuts trapped on fan inner face.
+// M3×16 pan-head: head protrudes outside wall, shaft through wall (2mm) + fan (10mm).
+_m3_screw_l = 16.0;  // total screw length (head-face to tip)
+
+if (SHOW_FAN40)
+    color(SCREW_COL)
+        for (dy = [-FAN40_HOLE_P/2, FAN40_HOLE_P/2],
+             dz = [-FAN40_HOLE_P/2, FAN40_HOLE_P/2]) {
+            // Screw: head on outer wall face, shaft going inward (−X)
+            // rotate([0,90,0]) aligns local +Z with world +X
+            translate([OUTER_X, FAN40_CY + dy, FAN40_CZ + dz])
+                rotate([0, 90, 0]) {
+                    cylinder(d=_m3_head_d, h=_m3_head_h, $fn=16);       // head outside
+                    translate([0, 0, -_m3_screw_l])
+                        cylinder(d=FAN40_HOLE_D, h=_m3_screw_l, $fn=16); // shaft inward
+                }
+            // Nut: on fan inner face (X = OUTER_X − WALL_S − FAN40_T)
+            // rotate([0,-90,0]) aligns local +Z with world −X
+            translate([OUTER_X - WALL_S - FAN40_T, FAN40_CY + dy, FAN40_CZ + dz])
+                rotate([0, -90, 0])
+                    cylinder(r=_m3_nut_r, h=_m3_nut_h, $fn=6);
+        }
 
 // ── Debug: red spheres at boss-tip world positions ────────────
 // Uses the exact same transform chain as base.scad bosses → guaranteed correct.

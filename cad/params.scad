@@ -192,8 +192,8 @@ COVER_EXTRA    = 3.1;              // additional cover height: 0.5 base + 2.0 li
 
 // ── RPi position (centred in X, front-flush in Y) ─────────────
 // RPi centred in X (LCD also centred → they share X centre), shifted right by RPI_X_SHIFT
-RPI_X_SHIFT = 1.0;                                          // shift of RPi+LCD assembly (−2 mm vs original to keep same gap to right wall)
-RPI_X0 = (LCD_PCB_X + 2*CLR - RPI_X) / 2 + RPI_X_SHIFT;  // = 8.8 mm
+RPI_X_SHIFT = -8.5;                                         // shift so RPi left edge sits flush with inner left wall
+RPI_X0 = (LCD_PCB_X + 2*CLR - RPI_X) / 2 + RPI_X_SHIFT;  // = -1.0 mm (RPi left edge at inner wall face)
 RPI_Y0 = CLR - 11.0;              // = -10mm: maximally forward; front boss at BOSS_YS[0]≈6.2mm (front edge +2.7mm); front wall extends by FRONT_EXT
 FRONT_EXT = max(0, CLR - RPI_Y0); // = 11mm: front wall/floor/side-wall extension to give CLR clearance at RPi edge
 RPI_GROOVE_DEPTH = 3.5;           // depth of floor groove to clear RPi front edge below BASE_OUTER_Z  — TBD
@@ -201,10 +201,10 @@ RPI_GROOVE_DEPTH = 3.5;           // depth of floor groove to clear RPi front ed
 // ── Buck converter floor bosses ────────────────────────────────
 // PCB lies flat (56 mm along Y, 35 mm along X). Right edge of PCB sits
 // BUCK_WALL_GAP mm from right wall inner face.  Setbacks: 3 mm in Y, 3.5 mm in X.
-BUCK_X0 = RPI_X0 + RPI_X + CLR;   // X of PCB left edge (≈ 93.8 mm) — TBD fit check
+BUCK_X0 = RPI_X0 + RPI_X + CLR;   // X of PCB left edge from inner wall (≈ 88 mm) — NOTE: ~0.5 mm nominal gap to RPi right edge
 BUCK_Y0 = 5.0;                     // Y gap from inner front wall to PCB front edge (back edge 4 mm from inner back wall)
-BUCK_WALL_GAP = 1.0;   // clearance from right wall inner face to PCB right edge
-BUCK_FLOOR_H  = 4.0;   // boss height — PCB solder face at BASE_OUTER_Z + BUCK_FLOOR_H
+BUCK_WALL_GAP = 10.5;  // clearance from right wall inner face to PCB right edge (moved 9.5 mm left: 7.5 with RPi + 2 extra)
+BUCK_FLOOR_H  = 8.0;   // boss height — PCB solder face at BASE_OUTER_Z + BUCK_FLOOR_H
 // Boss X: right pair setback (BUCK_X - BUCK_HOLE_X)/2 from right PCB edge
 BUCK_FLOOR_X2 = INNER_X + WALL - BUCK_WALL_GAP - (BUCK_X - BUCK_HOLE_X)/2;  // right pair (= OUTER_X − WALL − …)
 BUCK_FLOOR_X1 = BUCK_FLOOR_X2 - BUCK_HOLE_X;                                  // left  pair
@@ -218,6 +218,17 @@ OUTER_Y      = INNER_Y + 2*WALL;   // =  73 mm
 BASE_OUTER_Z = 1.0;                // floor slab thickness
 // SD slot Y centre: back screw hole sits SD_BACK_CLR from inner back wall.
 SD_CY = OUTER_Y - WALL - SD_BACK_CLR - SD_SCREW_SPAN/2;
+
+// ── 4010 fan (40×40×10mm) — right-wall mounted, blowing inward ────────────
+// Outer face flush with right wall inner face (X = OUTER_X − WALL_S).
+// Back edge flush with inner back wall; bottom at floor level.
+FAN40_SIZE    = 40.0;   // frame size (square, Y × Z)
+FAN40_T       = 10.0;   // frame thickness (X depth)
+FAN40_HOLE_P  = 32.0;   // M3 mounting hole pitch (square, standard 40 mm fan)
+FAN40_HOLE_D  =  3.2;   // M3 clearance diameter
+FAN40_NUT_CLR =  9.0;   // extra cover clearance beyond fan back face for M3 nut (away from right wall)
+FAN40_CY     = OUTER_Y - WALL_S - FAN40_SIZE / 2;  // fan centre Y (back edge at inner back wall)
+FAN40_CZ     = BASE_OUTER_Z + FAN40_SIZE / 2;       // fan centre Z (bottom at floor)
 
 // ── Tilt & cover geometry ─────────────────────────────────────
 // Plate is 125 mm wide (left-aligned).

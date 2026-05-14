@@ -81,7 +81,43 @@ module cover() {
         _stylus_groove(_y_cut);
         // Finger relief scoop at groove midpoint
         _stylus_finger_relief(_y_cut);
+        // 4010 fan body clearance — shape-conforming cut using the fan STL.
+        _fan40_clearance_cut();
     }
+}
+
+// ── 4010 fan body clearance cut ───────────────────────────────
+// Scales the fan STL uniformly from its body centre so the cut conforms
+// to the actual fan profile. Cover-local Z = FAN40_CZ − BASE_OUTER_Z
+// places the fan centre correctly (bottom at floor, same as assembly.scad).
+// Scale factors add CLR on every side; face at X = OUTER_X−WALL_S+CLR
+// ensures a clean cut through the cover's right edge.
+module _fan40_clearance_cut() {
+    // Cap at Y = BHINGE_Y − BHINGE_R: fan back (Y≈71) extends past the hinge axle
+    // (Y≈69.3), but cover material there starts at Z≈41.2 mm — 1.2 mm above the
+    // fan top — so no cut is needed beyond the axle near-edge.
+    intersection() {
+        translate([OUTER_X - WALL_S, FAN40_CY, FAN40_CZ - BASE_OUTER_Z])
+            translate([-FAN40_T / 2, 0, 0])
+                scale([(FAN40_T + 2*CLR) / FAN40_T,
+                       (FAN40_SIZE + 2*CLR) / FAN40_SIZE,
+                       (FAN40_SIZE + 2*CLR) / FAN40_SIZE])
+                    translate([FAN40_T / 2, 0, 0])
+                        rotate([0, 0, 90])
+                            hull()
+                                import("../reference/4010fanv1.stl", convexity=5);
+        translate([-1, -1, -1])
+            cube([OUTER_X + 2, BHINGE_Y - BHINGE_R + 1, COVER_FLAT_Z + WALL + 6]);
+    }
+    // Rectangular extension inward (−X) beyond the fan back face for M3 nut clearance.
+    // The STL-hull cut reaches FAN40_T/2 + CLR from the wall inner face; this box
+    // adds FAN40_NUT_CLR further so the nut has room.
+    translate([OUTER_X - WALL_S - FAN40_T / 2 - CLR - FAN40_NUT_CLR,
+               FAN40_CY - FAN40_SIZE / 2 - CLR,
+               FAN40_CZ - BASE_OUTER_Z - FAN40_SIZE / 2 - CLR])
+        cube([FAN40_NUT_CLR + 0.1,
+              FAN40_SIZE + 2 * CLR,
+              FAN40_SIZE + 2 * CLR]);
 }
 
 // ── Angled top slab (fills between thin side walls, WALL_S based) ──

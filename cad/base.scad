@@ -39,6 +39,19 @@ module base() {
         // Hull of upright base disc + tilted cylinder fills the back-side gap
         // (where the tilted bottom circle lifts off the floor).
         // Intersection with z≥0 clips any front-side material below the floor bottom.
+        // 4010 fan — flat wall pads around each M3 hole.
+        // Added outside main difference() so vent cuts cannot reach them.
+        // Disc spans exactly the wall thickness (WALL_S); no interior protrusion.
+        for (dy = [-FAN40_HOLE_P/2, FAN40_HOLE_P/2],
+             dz = [-FAN40_HOLE_P/2, FAN40_HOLE_P/2])
+            difference() {
+                translate([OUTER_X - WALL_S, FAN40_CY + dy, FAN40_CZ + dz])
+                    rotate([0, 90, 0])
+                        cylinder(r=M3_BOSS_R, h=WALL_S, $fn=32);
+                translate([OUTER_X - WALL_S - 0.05, FAN40_CY + dy, FAN40_CZ + dz])
+                    rotate([0, 90, 0])
+                        cylinder(d=FAN40_HOLE_D, h=WALL_S + 0.1, $fn=16);
+            }
         let(_h0 = max(0.5, _BH_C + BOSS_YS[0] * sin(TILT_ANGLE)))
         for (bx = BOSS_XS)
             difference() {
@@ -144,27 +157,11 @@ module _base_solid() {
 
 // ── Subtractive cuts ──────────────────────────────────────────
 module _base_cuts() {
-    // ── Right wall: ventilation grill (round holes on regular grid) ────
-    // Main grid: 9 columns × 5 rows.
-    for (vy = [VENT_Y0 : VENT_HOLE_PITCH : VENT_Y1],
-         vz = [VENT_Z0 + VENT_HOLE_R : VENT_HOLE_PITCH : VENT_Z1 - VENT_HOLE_R])
+    // ── Right wall: ventilation grill — holes within fan footprint only ────
+    // Y: centres span fan Y extent; Z: inset VENT_HOLE_R from each fan edge.
+    for (vy = [FAN40_CY - FAN40_SIZE/2 : VENT_HOLE_PITCH : FAN40_CY + FAN40_SIZE/2],
+         vz = [FAN40_CZ - FAN40_SIZE/2 + VENT_HOLE_R : VENT_HOLE_PITCH : FAN40_CZ + FAN40_SIZE/2 - VENT_HOLE_R])
         translate([OUTER_X - WALL_S - 0.05, vy, vz])
-            rotate([0, 90, 0])
-                cylinder(r=VENT_HOLE_R, h=WALL_S + 0.1, $fn=24);
-    // Front columns: 4 holes each (top row omitted — wall too short there).
-    for (vy = [VENT_Y0 - VENT_HOLE_PITCH, VENT_Y0 - 2*VENT_HOLE_PITCH, VENT_Y0 - 3*VENT_HOLE_PITCH],
-         vz = [VENT_Z0 + VENT_HOLE_R : VENT_HOLE_PITCH : VENT_Z1 - VENT_HOLE_PITCH - VENT_HOLE_R])
-        translate([OUTER_X - WALL_S - 0.05, vy, vz])
-            rotate([0, 90, 0])
-                cylinder(r=VENT_HOLE_R, h=WALL_S + 0.1, $fn=24);
-    // Extra row: 6 holes one pitch above the main grid top row (Z = 33.5 mm), centered in Y.
-    for (vy = [VENT_Y0 + 3*VENT_HOLE_PITCH : VENT_HOLE_PITCH : VENT_Y0 + 8*VENT_HOLE_PITCH])
-        translate([OUTER_X - WALL_S - 0.05, vy, VENT_Z0 + VENT_HOLE_R + 5*VENT_HOLE_PITCH])
-            rotate([0, 90, 0])
-                cylinder(r=VENT_HOLE_R, h=WALL_S + 0.1, $fn=24);
-    // Rear column: 6 holes (5 main rows + top row) one pitch behind the last main-grid column.
-    for (vz = [VENT_Z0 + VENT_HOLE_R : VENT_HOLE_PITCH : VENT_Z0 + VENT_HOLE_R + 5*VENT_HOLE_PITCH])
-        translate([OUTER_X - WALL_S - 0.05, VENT_Y0 + 9*VENT_HOLE_PITCH, vz])
             rotate([0, 90, 0])
                 cylinder(r=VENT_HOLE_R, h=WALL_S + 0.1, $fn=24);
 
@@ -177,13 +174,14 @@ module _base_cuts() {
     // PORT_WIN_OFS shifts the window toward the back of the enclosure (+Y).
     let(_h0     = max(0.5, _BH_C + BOSS_YS[0] * sin(TILT_ANGLE)),
         _port_ofs = 6.0,                            // shift window backward — adjust once ports measured
-        _w_ylo  = WALL + RPI_Y0 + _port_ofs,        // port window front edge (world Y)
-        _w_yhi  = WALL + RPI_Y0 + RPI_Y + _port_ofs, // port window back edge (world Y)
+        _port_z_ofs = 1.0 / cos(TILT_ANGLE),       // lower window 1 mm in world Z
+        _w_ylo  = WALL + RPI_Y0 + _port_ofs + 1.0,        // port window front edge (world Y) — 1 mm inset
+        _w_yhi  = WALL + RPI_Y0 + RPI_Y + _port_ofs - 1.0, // port window back edge (world Y) — 1 mm inset
         _ly_min = (_w_ylo - BOSS_YS[0] + _h0 * sin(TILT_ANGLE)) / cos(TILT_ANGLE),
         _ly_max = (_w_yhi - BOSS_YS[0] + _h0 * sin(TILT_ANGLE)) / cos(TILT_ANGLE))
     translate([-0.05, BOSS_YS[0], BASE_OUTER_Z])
         rotate([TILT_ANGLE, 0, 0])
-            translate([0, _ly_min, _h0])
+            translate([0, _ly_min, _h0 - _port_z_ofs])
                 cube([WALL_S + 0.1, _ly_max - _ly_min, RPI_T + 0.1]);
 
     // ── Left wall: SD slot notch (bottom flush with inside floor) ────────────────────
@@ -279,6 +277,13 @@ module _base_cuts() {
             rotate([0, 90, 0])
                 cylinder(r=REAR_CORNER_R, h=WALL_S + 0.1, $fn=32);
     }
+
+    // ── 4010 fan — 4× M3 clearance holes through right wall ──────
+    for (dy = [-FAN40_HOLE_P/2, FAN40_HOLE_P/2],
+         dz = [-FAN40_HOLE_P/2, FAN40_HOLE_P/2])
+        translate([OUTER_X - WALL_S - 0.05, FAN40_CY + dy, FAN40_CZ + dz])
+            rotate([0, 90, 0])
+                cylinder(d=FAN40_HOLE_D, h=WALL_S + 0.1, $fn=16);
 
     // ── Pin-hinge through-holes in side walls ──
     translate([-0.05, BHINGE_Y, BHINGE_WZ])
